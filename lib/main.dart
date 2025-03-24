@@ -21,46 +21,80 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
-        home: CheckInPage(),
+        home: HomePage(),
       ),
-    );
-  }
-}
-
-class ActivePage extends StatefulWidget {
-  const ActivePage({super.key});
-
-  @override
-  State<ActivePage> createState() => _ActivePageState();
-}
-
-class _ActivePageState extends State<ActivePage> {
-  bool checkInPending = true;
-
-  @override
-  Widget build(BuildContext context) {
-    Widget page;
-    switch (checkInPending) {
-      case true:
-        page = CheckInPage();
-        break;
-      case false:
-        page = Placeholder();
-        break;
-    }
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Vibe Check')),
-      body: page,
     );
   }
 }
 
 class CheckInState extends ChangeNotifier {
   var checkInTime = DateTime.now();
+  var checkInPending = false;
 }
 
-// TODO: Implement HomePage
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  var currentIndex = 0;
+  
+  @override
+  Widget build(BuildContext context) {
+    var checkInState = context.watch<CheckInState>();
+    if (checkInState.checkInPending) {
+      currentIndex = 1;
+    }
+
+    return Scaffold(
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+        indicatorColor: Theme.of(context).colorScheme.primary,
+        selectedIndex: currentIndex,
+        destinations: const <Widget>[
+          NavigationDestination(
+            icon: Icon(Icons.home),
+            label: "Home",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.calendar_today),
+            label: "Check In",
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings),
+            label: "Settings",
+          ),
+        ],
+      ),
+      body: IndexedStack(
+        index: currentIndex,
+        children: const <Widget>[
+          PlaceholderPage(),
+          CheckInPage(),
+          PlaceholderPage(),
+        ],
+      ),
+    );
+  }
+}
+
+class PlaceholderPage extends StatelessWidget {
+  const PlaceholderPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text("Placeholder Page"),
+    );
+  }
+}
 
 class CheckInPage extends StatelessWidget {
   const CheckInPage({super.key});
@@ -71,7 +105,6 @@ class CheckInPage extends StatelessWidget {
     var timestamp = checkInState.checkInTime;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Development Check In Page')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
