@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,8 +20,8 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
-        home: CheckInPage()
-      )
+        home: CheckInPage(),
+      ),
     );
   }
 }
@@ -48,9 +49,7 @@ class _ActivePageState extends State<ActivePage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Vibe Check'),
-      ),
+      appBar: AppBar(title: const Text('Vibe Check')),
       body: page,
     );
   }
@@ -62,7 +61,6 @@ class CheckInState extends ChangeNotifier {
 
 // TODO: Implement HomePage
 
-
 class CheckInPage extends StatelessWidget {
   const CheckInPage({super.key});
 
@@ -72,9 +70,7 @@ class CheckInPage extends StatelessWidget {
     var timestamp = checkInState.checkInTime;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Development Check In Page'),
-      ),
+      appBar: AppBar(title: const Text('Development Check In Page')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -84,29 +80,20 @@ class CheckInPage extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.w900,
                 fontSize: 40,
-                fontStyle: FontStyle.italic)
+                fontStyle: FontStyle.italic,
+              ),
             ),
             Text.rich(
               TextSpan(
-                style: TextStyle(
-                  fontSize: 17,
-                ),
+                style: TextStyle(fontSize: 17),
                 children: [
-                  WidgetSpan(
-                    child: Icon(Icons.calendar_month)
-                  ),
-                  TextSpan(
-                    text: DateFormat(" MMM d, y ").format(timestamp)
-                  ),
-                  WidgetSpan(
-                    child: Icon(Icons.schedule)
-                  ),
-                  TextSpan(
-                    text: DateFormat(" h:mm a ").format(timestamp)
-                  )
-                ]
-              )
-            )
+                  WidgetSpan(child: Icon(Icons.calendar_month)),
+                  TextSpan(text: DateFormat(" MMM d, y ").format(timestamp)),
+                  WidgetSpan(child: Icon(Icons.schedule)),
+                  TextSpan(text: DateFormat(" h:mm a ").format(timestamp)),
+                ],
+              ),
+            ),
 
             // TODO: Implement Emoji Picker
             // TODO: Implemenet Text Field
