@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> {
       body: IndexedStack(
         index: currentIndex,
         children: const <Widget>[
-          PlaceholderPage(),
+          AnalysisPage(),
           CheckInPage(),
           PlaceholderPage(),
         ],
@@ -92,6 +92,104 @@ class PlaceholderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Text("Placeholder Page"),
+    );
+  }
+}
+
+class AnalysisPage extends StatelessWidget {
+  const AnalysisPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    var cardList = <Widget>[
+      StreakCard(streak: 5, longestStreak: 10),
+      LastDaysCard(),
+      WordCloudCard()
+    ];
+
+    return Scaffold (
+      appBar: AppBar (
+        title: Text("Your Vibes"),
+      ),
+      body: ListView.separated(
+        padding: const EdgeInsets.all(8),
+        itemCount: cardList.length,
+        itemBuilder: (context, index) {
+          return cardList[index];
+        },
+        separatorBuilder: (BuildContext context, int index) => const Divider(),
+      ),
+      floatingActionButton: FloatingActionButton (
+        onPressed: () {
+          // TODO: Implement Calendar Page
+        },
+        child: const Icon(Icons.today),
+      )
+    );
+  }
+}
+
+class StreakCard extends StatelessWidget {
+  final int streak;
+  final int longestStreak;
+
+  const StreakCard({
+    required this.streak,
+    required this.longestStreak,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        children: <Widget>[
+          ListTile(
+            title: Text("Current Streak"),
+            subtitle: Text("$streak days"),
+          ),
+          ListTile(
+            title: Text("Longest Streak"),
+            subtitle: Text("$longestStreak days"),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class LastDaysCard extends StatelessWidget {
+  const LastDaysCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        children: <Widget>[
+          ListTile(
+            title: Text("Last 7 Days"),
+            subtitle: Text("In progress"),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class WordCloudCard extends StatelessWidget {
+  const WordCloudCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card (
+      child: Column (
+        children: <Widget>[
+          ListTile(
+            title: Text("Wordcloud"),
+            subtitle: Text("In progress")
+          )
+        ]
+      )
     );
   }
 }
