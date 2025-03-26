@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:vibe_check/cards.dart';
 import 'database_helper.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
+// Vibe Check App - your personal mood tracker
+// by stelubertu 2025
+// COMP 225 - Software Design and Development
+// Professor Jedediah Carlson, Macalester College
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -27,11 +32,13 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// State used to manage when to prompt the user to check in
 class CheckInState extends ChangeNotifier {
   var checkInTime = DateTime.now();
   var checkInPending = false;
 }
 
+/// Main home page of the Vibe Check app
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -39,11 +46,13 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+/// State for the HomePage widget
 class _HomePageState extends State<HomePage> {
   var currentIndex = 0;
   
   @override
   Widget build(BuildContext context) {
+    // If a check in is pending, the check in page is displayed upon launch
     var checkInState = context.watch<CheckInState>();
     if (checkInState.checkInPending) {
       currentIndex = 1;
@@ -85,6 +94,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+/// A placeholder page. TODO: Implement and remove this page
 class PlaceholderPage extends StatelessWidget {
   const PlaceholderPage({super.key});
 
@@ -96,11 +106,14 @@ class PlaceholderPage extends StatelessWidget {
   }
 }
 
+/// The main page for the app, which displays the user's analysis in Cards.
 class AnalysisPage extends StatelessWidget {
   const AnalysisPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // The list of cards, which should be user editable.
+    // TODO: Implement Edit page and allow user to add and remove cards, along with changing the order of the cards.
     var cardList = <Widget>[
       StreakCard(streak: 5, longestStreak: 10),
       LastDaysCard(),
@@ -109,91 +122,42 @@ class AnalysisPage extends StatelessWidget {
 
     return Scaffold (
       appBar: AppBar (
-        title: Text("Your Vibes"),
+        actions: <Widget>[
+          IconButton(
+            tooltip: 'Show Calendar',
+            onPressed: () {},
+            icon: Icon(Icons.today),
+          ),
+          IconButton(
+            tooltip: 'Edit Layout',
+            onPressed: () {},
+            icon: Icon(Icons.edit)
+          )
+        ]
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(8),
-        itemCount: cardList.length,
+        itemCount: 1 + cardList.length,
         itemBuilder: (context, index) {
-          return cardList[index];
+          return index == 0
+            ? ListTile(
+              title: Text(
+                "Hello! :)",
+                style: Theme.of(context).textTheme.headlineLarge),
+              subtitle: Text("Welcome to Vibe Check, your personal mood tracker"),
+            )
+            : index == 1
+              ? cardList[0]
+              : cardList[index - 2];
         },
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
-      ),
-      floatingActionButton: FloatingActionButton (
-        onPressed: () {
-          // TODO: Implement Calendar Page
-        },
-        child: const Icon(Icons.today),
+        separatorBuilder: (BuildContext context, int index) => const SizedBox(height: 10),
       )
     );
   }
 }
 
-class StreakCard extends StatelessWidget {
-  final int streak;
-  final int longestStreak;
-
-  const StreakCard({
-    required this.streak,
-    required this.longestStreak,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            title: Text("Current Streak"),
-            subtitle: Text("$streak days"),
-          ),
-          ListTile(
-            title: Text("Longest Streak"),
-            subtitle: Text("$longestStreak days"),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class LastDaysCard extends StatelessWidget {
-  const LastDaysCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            title: Text("Last 7 Days"),
-            subtitle: Text("In progress"),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class WordCloudCard extends StatelessWidget {
-  const WordCloudCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card (
-      child: Column (
-        children: <Widget>[
-          ListTile(
-            title: Text("Wordcloud"),
-            subtitle: Text("In progress")
-          )
-        ]
-      )
-    );
-  }
-}
-
+/// The page where the user can check in their mood.
+/// Prompts the user to pick one of 6 displayed emojis and log a sentence.
 class CheckInPage extends StatelessWidget {
   const CheckInPage({super.key});
 
@@ -227,9 +191,9 @@ class CheckInPage extends StatelessWidget {
               ),
             ),
 
-            // TODO: Implement Emoji Picker
-            // TODO: Implemenet Text Field
-            // TODO: Implement Check In BUtton
+            /// TODO: Implement Emoji Picker
+            /// TODO: Implemenet Text Field
+            /// TODO: Implement Check In BUtton
           ],
         ),
       ),
