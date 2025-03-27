@@ -263,13 +263,30 @@ class _CheckInPageState extends State<CheckInPage> {
 
                   ElevatedButton(
                     onPressed: () {
-                      // TODO: Save check-in data to the database.
-                      FocusScope.of(context).unfocus();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomePage()),
-                      );
-                      resetCheckIn();
+
+                      if (selectedEmoji == null && textController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Please select an emoji and describe your mood!'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Checked in!'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+
+                        // TODO: Save check-in data to the database.
+
+                        resetCheckIn();
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
+                      }
                     },
                     child: Text('Check In'),
                   ),
