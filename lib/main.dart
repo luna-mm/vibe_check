@@ -158,43 +158,123 @@ class AnalysisPage extends StatelessWidget {
 
 /// The page where the user can check in their mood.
 /// Prompts the user to pick one of 6 displayed emojis and log a sentence.
-class CheckInPage extends StatelessWidget {
+class CheckInPage extends StatefulWidget {
   const CheckInPage({super.key});
+
+  @override
+  State<CheckInPage> createState() => _CheckInPageState();
+}
+
+class _CheckInPageState extends State<CheckInPage> {
+  String? selectedEmoji;
+  TextEditingController textController = TextEditingController();
+
+  // The list of emojis that user can choose from
+  final List<String> emojis = ['😊', '😔', '🫠', '😒', '😡', '🫢'];
+
+  void resetCheckIn() {
+    setState(() {
+      selectedEmoji = null;
+      textController.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     var checkInState = context.watch<CheckInState>();
     var timestamp = checkInState.checkInTime;
 
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              "Vibe Check!",
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 40,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-            Text.rich(
-              TextSpan(
-                style: TextStyle(fontSize: 17),
-                children: [
-                  WidgetSpan(child: Icon(Icons.calendar_month)),
-                  TextSpan(text: DateFormat(" MMM d, y ").format(timestamp)),
-                  WidgetSpan(child: Icon(Icons.schedule)),
-                  TextSpan(text: DateFormat(" h:mm a ").format(timestamp)),
-                ],
-              ),
-            ),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  "Vibe Check!",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 40,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text.rich(
+                  TextSpan(
+                    style: TextStyle(fontSize: 17),
+                    children: [
+                      WidgetSpan(child: Icon(Icons.calendar_month)),
+                      TextSpan(text: DateFormat(" MMM d, y ").format(timestamp)),
+                      WidgetSpan(child: Icon(Icons.schedule)),
+                      TextSpan(text: DateFormat(" h:mm a ").format(timestamp)),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
 
-            /// TODO: Implement Emoji Picker
-            /// TODO: Implemenet Text Field
-            /// TODO: Implement Check In BUtton
-          ],
+                GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: emojis.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedEmoji = emojis[index];
+                        });
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: selectedEmoji == emojis[index]
+                              ? const Color.fromARGB(255, 198, 180, 246)
+                              : const Color.fromARGB(255, 233, 228, 246),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          emojis[index],
+                          style: TextStyle(fontSize: 40),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(height: 20),
+
+                TextField(
+                  controller: textController,
+                  decoration: InputDecoration(
+                    labelText: 'Describe your mood...',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                ),
+                SizedBox(height: 20),
+
+                ElevatedButton(
+                  onPressed: () {
+                    // TODO: Save check-in data to the database.
+                    FocusScope.of(context).unfocus();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                    );
+                    resetCheckIn();
+                  },
+                  child: Text('Check In'),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
