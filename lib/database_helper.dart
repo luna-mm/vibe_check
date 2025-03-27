@@ -22,10 +22,11 @@ class DatabaseHelper {
   Future _onCreate(Database db, int version) async {
     // need entry for timestamp, input string (one sentence), emoticon
     await db.execute('''
-      CREATE TABLE gfg_users (
-        id INTEGER PRIMARY KEY,
-        username TEXT,
-        email TEXT
+      CREATE TABLE user_entries (
+        actualCheckInTime DATETIME,
+        timestamp DATETIME,
+        inputSentence TEXT,
+        inputEmoji TEXT
       )
     ''');
   }
