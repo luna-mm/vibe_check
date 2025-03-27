@@ -36,7 +36,12 @@ class StreakCard extends StatelessWidget {
 
 /// Card that displays the user's emojis in the last 7 days
 class LastDaysCard extends StatelessWidget {
-  const LastDaysCard({super.key});
+  final List<String> emojis;
+
+  const LastDaysCard({
+    required this.emojis,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

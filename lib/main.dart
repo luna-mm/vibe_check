@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:vibe_check/cards.dart';
+import 'package:sqflite/sqflite.dart';
 import 'database_helper.dart';
 
 void main() {
@@ -116,7 +116,7 @@ class AnalysisPage extends StatelessWidget {
     // TODO: Implement Edit page and allow user to add and remove cards, along with changing the order of the cards.
     var cardList = <Widget>[
       StreakCard(streak: 5, longestStreak: 10),
-      LastDaysCard(),
+      LastDaysCard(emojis: List<String>.filled(1, "Incomplete")),
       WordCloudCard()
     ];
 
@@ -148,7 +148,7 @@ class AnalysisPage extends StatelessWidget {
             )
             : index == 1
               ? cardList[0]
-              : cardList[index - 2];
+              : cardList[index - 1];
         },
         separatorBuilder: (BuildContext context, int index) => const SizedBox(height: 10),
       )
