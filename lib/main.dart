@@ -104,9 +104,27 @@ class _HomePageState extends State<HomePage> {
 class PlaceholderPage extends StatelessWidget {
   const PlaceholderPage({super.key});
 
+  triggerNotification() {
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 1,
+        channelKey: "test_channel",
+        title: "Vibe Check! (soon™)",
+        body: "Check in with yourself, what vibes are you feeling right now?",
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("Placeholder Page"));
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          onPressed: triggerNotification,
+          child: const Text('Notify me!')
+        ),
+      ),
+    );
   }
 }
 
