@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:vibe_check/cards.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:vibe_check/entry.dart';
 import 'database_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -16,11 +17,7 @@ void main() async {
   ]);
 
   WidgetsFlutterBinding.ensureInitialized();
-
   await DatabaseHelper.instance.initDb();
-  await DatabaseHelper.instance
-      .initializeSampleEntries(); // For presentation on Friday
-
   runApp(const MyApp());
 }
 
@@ -107,16 +104,24 @@ class _HomePageState extends State<HomePage> {
         children: const <Widget>[
           AnalysisPage(),
           CheckInPage(),
-          PlaceholderPage(),
+          DevSettingsPage(),
         ],
       ),
     );
   }
 }
 
-/// A placeholder page. TODO: Implement and remove this page
-class PlaceholderPage extends StatelessWidget {
-  const PlaceholderPage({super.key});
+// The development settings page for the app.
+// Not intended for production use!
+class DevSettingsPage extends StatefulWidget {
+  const DevSettingsPage({super.key});
+
+  @override
+  State<DevSettingsPage> createState() => _DevSettingsPageState();
+}
+
+class _DevSettingsPageState extends State<DevSettingsPage> {
+  List<Entry> _entries = [];
 
   triggerNotification() {
     AwesomeNotifications().createNotification(
@@ -129,13 +134,62 @@ class PlaceholderPage extends StatelessWidget {
     );
   }
 
+  Future<void> _fetchEntries() async {
+    final entryMap = await DatabaseHelper.instance.queryAllEntries();
+    setState(() {
+      _entries = entryMap.map((entryMap) => Entry.fromMap(entryMap)).toList();
+    });
+
+    // Debug
+    for (var entry in _entries) {
+      print(entry.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    _fetchEntries();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: ElevatedButton(
-          onPressed: triggerNotification,
-          child: const Text('Notify me!'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              "Development Settings",
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                triggerNotification();
+              },
+              child: Text("Trigger Notification"),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                DatabaseHelper.instance.initializeSampleEntries();
+                _fetchEntries();
+              },
+              child: Text("Initialize Sample Entries")
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => AllEntriesWidget(entries: _entries),
+                  ),
+                );
+              },
+              child: Text("View All Entries")
+            )
+          ],
         ),
       ),
     );
@@ -143,17 +197,37 @@ class PlaceholderPage extends StatelessWidget {
 }
 
 /// The main page for the app, which displays the user's analysis in Cards.
-class AnalysisPage extends StatelessWidget {
+class AnalysisPage extends StatefulWidget {
   const AnalysisPage({super.key});
+
+  @override
+  State<AnalysisPage> createState() => _AnalysisPageState();
+}
+
+class _AnalysisPageState extends State<AnalysisPage> {
+  List<Entry> _entries = [];
+
+  @override
+  void initState() {
+    _fetchEntries();
+    super.initState();
+  }
+
+  Future<void> _fetchEntries() async {
+    final entryMap = await DatabaseHelper.instance.queryAllEntries();
+    setState(() {
+      _entries = entryMap.map((entryMap) => Entry.fromMap(entryMap)).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     // The list of cards, which should be user editable.
     // TODO: Implement Edit page and allow user to add and remove cards, along with changing the order of the cards.
     var cardList = <Widget>[
-      StreakCard(streak: 5, longestStreak: 10),
-      LastDaysCard(emojis: List<String>.filled(1, "Incomplete")),
-      WordCloudCard(),
+      StreakCard(entries: _entries),
+      LastDaysCard(entries: _entries),
+      WordCloudCard(entries: _entries)
     ];
 
     return Scaffold(

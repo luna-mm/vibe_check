@@ -1,16 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:vibe_check/entry.dart';
 
 /// This file contains various "cards", widgets displayed on the Analysis page
 /// that display the user's statistics in varying ways.
 
+/// For development purposes only
+/// Card that displays all entries in the database
+class AllEntriesWidget extends StatelessWidget {
+  final List<Entry> entries;
+  
+  const AllEntriesWidget({
+    required this.entries,
+    super.key
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("All Entries"),
+      ),
+      body: ListView.builder(
+        itemCount: entries.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text('Entry ${index + 1}'),
+            subtitle: Text(entries[index].toString())
+          );
+        },
+      )
+    );
+  }
+}
+
 /// Card that displays the user's current and longest streaks
 class StreakCard extends StatelessWidget {
-  final int streak;
-  final int longestStreak;
+  final List<Entry> entries;
 
   const StreakCard({
-    required this.streak,
-    required this.longestStreak,
+    required this.entries,
     super.key,
   });
 
@@ -22,11 +50,11 @@ class StreakCard extends StatelessWidget {
           ListTile(
             /// TODO: Add text formatting (from theme)
             title: Text("Current Streak"),
-            subtitle: Text("$streak days"),
+            subtitle: Text("streak days"),
           ),
           ListTile(
             title: Text("Longest Streak"),
-            subtitle: Text("$longestStreak days"),
+            subtitle: Text("longestStreak days"),
           ),
         ],
       ),
@@ -36,10 +64,10 @@ class StreakCard extends StatelessWidget {
 
 /// Card that displays the user's emojis in the last 7 days
 class LastDaysCard extends StatelessWidget {
-  final List<String> emojis;
+  final List<Entry> entries;
 
   const LastDaysCard({
-    required this.emojis,
+    required this.entries,
     super.key
   });
 
@@ -60,7 +88,12 @@ class LastDaysCard extends StatelessWidget {
 
 /// Card that displays a wordcloud of the user's entries the last 7 days
 class WordCloudCard extends StatelessWidget {
-  const WordCloudCard({super.key});
+  final List<Entry> entries;
+  
+  const WordCloudCard({
+    required this.entries,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

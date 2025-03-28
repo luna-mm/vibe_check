@@ -1,11 +1,11 @@
 class Entry {
-  final DateTime timestamp;
+  final DateTime id; // This is the timestamp of the entry
   final DateTime actualTime;
   final String emoji;
   final String sentence;
 
-  Entry({
-    required this.timestamp,
+  Entry( {
+    required this.id,
     required this.actualTime,
     required this.emoji,
     required this.sentence,
@@ -13,24 +13,24 @@ class Entry {
 
   Map<String, dynamic> toMap() {
     return {
-      'timestamp': timestamp.millisecondsSinceEpoch,
+      'id': id.millisecondsSinceEpoch,
       'actualTime': actualTime.millisecondsSinceEpoch,
       'emoji': emoji,
       'sentence': sentence,
     };
   }
 
-  factory Entry.fromMap(Map<String, Object?> map) {
+  factory Entry.fromMap(Map<String, dynamic> map) {
     return Entry(
-    timestamp: DateTime.fromMillisecondsSinceEpoch(map['timestamp'] as int),
-    actualTime: DateTime.fromMillisecondsSinceEpoch(map['actualTime'] as int),
-    emoji: map['emoji'] as String,
-    sentence: map['sentence'] as String,
+      id: DateTime.fromMillisecondsSinceEpoch(map['id']),
+      actualTime: DateTime.fromMillisecondsSinceEpoch(map['actualTime']),
+      emoji: map['emoji'],
+      sentence: map['sentence'],
     );
   }
 
   @override
   String toString() {
-    return 'Entry{timestamp: $timestamp, actualTime: $actualTime, emoji: $emoji, sentence: $sentence}';
+    return 'Check in Time (id): $id \nactualTime: $actualTime \nemoji: $emoji \nsentence: $sentence';
   }
 }

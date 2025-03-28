@@ -23,7 +23,7 @@ class DatabaseHelper {
   Future _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE entries (
-        timestamp INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY,
         actualTime INTEGER,
         emoji TEXT,
         sentence TEXT
@@ -43,25 +43,25 @@ class DatabaseHelper {
 
   Future<int> updateEntry(Entry entry) async {
     Database db = await instance.db;
-    return await db.update('entries', entry.toMap(), where: 'timestamp = ?', whereArgs: [entry.timestamp]);
+    return await db.update('entries', entry.toMap(), where: 'id = ?', whereArgs: [entry.id.millisecondsSinceEpoch]);
   }
 
-  Future<int> deleteEntry(DateTime timestamp) async {
+  Future<int> deleteEntry(DateTime id) async {
     Database db = await instance.db;
-    return await db.delete('entries', where: 'timestamp = ?', whereArgs: [timestamp]);
+    return await db.delete('entries', where: 'id = ?', whereArgs: [id.millisecondsSinceEpoch]);
   }
 
   /// For development purposes only
   /// This function initializes the database with some sample entries.
   Future<void> initializeSampleEntries() async {
     List<Entry> entriesToAdd = [
-      Entry(actualTime: DateTime.now(), timestamp: DateTime.now().subtract(Duration(days: 1)), emoji: '😊', sentence: 'Finally got the database working!'),
-      Entry(actualTime: DateTime.now(), timestamp: DateTime.now().subtract(Duration(days: 2)), emoji: '😐', sentence: 'Just okay.'),
-      Entry(actualTime: DateTime.now(), timestamp: DateTime.now().subtract(Duration(days: 3)), emoji: '😢', sentence: 'Feeling sad.'),
-      Entry(actualTime: DateTime.now(), timestamp: DateTime.now().subtract(Duration(days: 4)), emoji: '😠', sentence: 'Feeling angry.'),
-      Entry(actualTime: DateTime.now(), timestamp: DateTime.now().subtract(Duration(days: 5)), emoji: '😱', sentence: 'Feeling scared.'),
-      Entry(actualTime: DateTime.now(), timestamp: DateTime.now().subtract(Duration(days: 6)), emoji: '😴', sentence: 'Feeling sleepy.'),
-      Entry(actualTime: DateTime.now(), timestamp: DateTime.now().subtract(Duration(days: 7)), emoji: '😎', sentence: 'Feeling cool.'),
+      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 1)), emoji: '😊', sentence: 'Finally got the database working!'),
+      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 2)), emoji: '😔', sentence: 'The database isn\'t working! This sucks :('),
+      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 3)), emoji: '🫠', sentence: 'Cafe Mac was so bad today.'),
+      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 4)), emoji: '😒', sentence: 'smh'),
+      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 5)), emoji: '😡', sentence: 'My computer decided to break down for no reason ugh'),
+      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 6)), emoji: '🫢', sentence: 'Oops I think I totally got overheard lol'),
+      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 7)), emoji: '😊', sentence: 'First entry wooh hooooo yayayayyy'),
     ];
 
     for (Entry entry in entriesToAdd) {
