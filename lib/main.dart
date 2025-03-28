@@ -10,9 +10,9 @@ void main() {
 }
 
 // Vibe Check App - your personal mood tracker
-// by stelubertu 2025
+// by stelubertu 2025!
 // COMP 225 - Software Design and Development
-// Professor Jedediah Carlson, Macalester College
+// Professor Paul Cantrell, Macalester College
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -49,7 +49,7 @@ class HomePage extends StatefulWidget {
 /// State for the HomePage widget
 class _HomePageState extends State<HomePage> {
   var currentIndex = 0;
-  
+
   @override
   Widget build(BuildContext context) {
     // If a check in is pending, the check in page is displayed upon launch
@@ -68,18 +68,12 @@ class _HomePageState extends State<HomePage> {
         indicatorColor: Theme.of(context).colorScheme.primary,
         selectedIndex: currentIndex,
         destinations: const <Widget>[
-          NavigationDestination(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
+          NavigationDestination(icon: Icon(Icons.home), label: "Home"),
           NavigationDestination(
             icon: Icon(Icons.calendar_today),
             label: "Check In",
           ),
-          NavigationDestination(
-            icon: Icon(Icons.settings),
-            label: "Settings",
-          ),
+          NavigationDestination(icon: Icon(Icons.settings), label: "Settings"),
         ],
       ),
       body: IndexedStack(
@@ -100,9 +94,7 @@ class PlaceholderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text("Placeholder Page"),
-    );
+    return Center(child: Text("Placeholder Page"));
   }
 }
 
@@ -117,11 +109,11 @@ class AnalysisPage extends StatelessWidget {
     var cardList = <Widget>[
       StreakCard(streak: 5, longestStreak: 10),
       LastDaysCard(emojis: List<String>.filled(1, "Incomplete")),
-      WordCloudCard()
+      WordCloudCard(),
     ];
 
-    return Scaffold (
-      appBar: AppBar (
+    return Scaffold(
+      appBar: AppBar(
         actions: <Widget>[
           IconButton(
             tooltip: 'Show Calendar',
@@ -131,27 +123,31 @@ class AnalysisPage extends StatelessWidget {
           IconButton(
             tooltip: 'Edit Layout',
             onPressed: () {},
-            icon: Icon(Icons.edit)
-          )
-        ]
+            icon: Icon(Icons.edit),
+          ),
+        ],
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(8),
         itemCount: 1 + cardList.length,
         itemBuilder: (context, index) {
           return index == 0
-            ? ListTile(
-              title: Text(
-                "Hello! :)",
-                style: Theme.of(context).textTheme.headlineLarge),
-              subtitle: Text("Welcome to Vibe Check, your personal mood tracker"),
-            )
-            : index == 1
+              ? ListTile(
+                title: Text(
+                  "Hello! :)",
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+                subtitle: Text(
+                  "Welcome to Vibe Check, your personal mood tracker",
+                ),
+              )
+              : index == 1
               ? cardList[0]
               : cardList[index - 1];
         },
-        separatorBuilder: (BuildContext context, int index) => const SizedBox(height: 10),
-      )
+        separatorBuilder:
+            (BuildContext context, int index) => const SizedBox(height: 10),
+      ),
     );
   }
 }
@@ -210,9 +206,13 @@ class _CheckInPageState extends State<CheckInPage> {
                       style: TextStyle(fontSize: 17),
                       children: [
                         WidgetSpan(child: Icon(Icons.calendar_month)),
-                        TextSpan(text: DateFormat(" MMM d, y ").format(timestamp)),
+                        TextSpan(
+                          text: DateFormat(" MMM d, y ").format(timestamp),
+                        ),
                         WidgetSpan(child: Icon(Icons.schedule)),
-                        TextSpan(text: DateFormat(" h:mm a ").format(timestamp)),
+                        TextSpan(
+                          text: DateFormat(" h:mm a ").format(timestamp),
+                        ),
                       ],
                     ),
                   ),
@@ -236,9 +236,10 @@ class _CheckInPageState extends State<CheckInPage> {
                         child: Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: selectedEmoji == emojis[index]
-                                ? const Color.fromARGB(255, 198, 180, 246)
-                                : const Color.fromARGB(255, 233, 228, 246),
+                            color:
+                                selectedEmoji == emojis[index]
+                                    ? const Color.fromARGB(255, 198, 180, 246)
+                                    : const Color.fromARGB(255, 233, 228, 246),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -263,13 +264,32 @@ class _CheckInPageState extends State<CheckInPage> {
 
                   ElevatedButton(
                     onPressed: () {
-                      // TODO: Save check-in data to the database.
-                      FocusScope.of(context).unfocus();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomePage()),
-                      );
-                      resetCheckIn();
+                      if (selectedEmoji == null &&
+                          textController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Please select an emoji and describe your mood!',
+                            ),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Checked in!'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+
+                        // TODO: Save check-in data to the database.
+
+                        resetCheckIn();
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
+                      }
                     },
                     child: Text('Check In'),
                   ),
