@@ -10,7 +10,7 @@ void main() {
 }
 
 // Vibe Check App - your personal mood tracker
-// by stelubertu 2025
+// by stelubertu 2025!
 // COMP 225 - Software Design and Development
 // Professor Paul Cantrell, Macalester College
 class MyApp extends StatelessWidget {
