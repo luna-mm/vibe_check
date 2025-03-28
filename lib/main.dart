@@ -366,8 +366,8 @@ class _CheckInPageState extends State<CheckInPage> {
                           decoration: BoxDecoration(
                             color:
                                 selectedEmoji == emojis[index]
-                                    ? const Color.fromARGB(255, 198, 180, 246)
-                                    : const Color.fromARGB(255, 233, 228, 246),
+                                    ? const Color.fromARGB(255, 246, 180, 180)
+                                    : const Color.fromARGB(255, 246, 228, 228),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
