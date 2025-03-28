@@ -4,7 +4,7 @@ class Entry {
   final String emoji;
   final String sentence;
 
-  Entry( {
+  Entry({
     required this.id,
     required this.actualTime,
     required this.emoji,

@@ -176,7 +176,7 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
                 DatabaseHelper.instance.initializeSampleEntries();
                 _fetchEntries();
               },
-              child: Text("Initialize Sample Entries")
+              child: Text("Initialize Sample Entries"),
             ),
             SizedBox(height: 10),
             ElevatedButton(
@@ -187,8 +187,8 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
                   ),
                 );
               },
-              child: Text("View All Entries")
-            )
+              child: Text("View All Entries"),
+            ),
           ],
         ),
       ),
@@ -227,7 +227,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
     var cardList = <Widget>[
       StreakCard(entries: _entries),
       LastDaysCard(entries: _entries),
-      WordCloudCard(entries: _entries)
+      WordCloudCard(entries: _entries),
     ];
 
     return Scaffold(
@@ -253,12 +253,12 @@ class _AnalysisPageState extends State<AnalysisPage> {
               ? ListTile(
                 title: Text(
                   "Vibe Check",
-                  style: GoogleFonts.delius(
+                  style: GoogleFonts.deliusSwashCaps(
                     textStyle: Theme.of(
                       context,
                     ).textTheme.headlineLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontSize: 32,
+                      fontSize: 40,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
@@ -318,7 +318,7 @@ class _CheckInPageState extends State<CheckInPage> {
                 children: <Widget>[
                   Text(
                     "Vibe Check!",
-                    style: GoogleFonts.delius(
+                    style: GoogleFonts.deliusSwashCaps(
                       textStyle: Theme.of(
                         context,
                       ).textTheme.headlineLarge?.copyWith(
