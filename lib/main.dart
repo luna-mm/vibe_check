@@ -7,6 +7,16 @@ import 'package:sqflite/sqflite.dart';
 import 'database_helper.dart';
 
 void main() {
+  AwesomeNotifications().initialize(
+    null,
+    [
+      NotificationChannel(
+        channelKey: 'test_channel',
+        channelName: 'Test Notifications',
+        channelDescription: 'Our first of many notifications!',
+      ),
+    ],
+  );
   runApp(const MyApp());
 }
 
