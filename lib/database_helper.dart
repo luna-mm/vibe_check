@@ -1,5 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:vibe_check/main.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._instance();
@@ -23,11 +24,49 @@ class DatabaseHelper {
     // need entry for timestamp, input string (one sentence), emoticon
     await db.execute('''
       CREATE TABLE user_entries (
-        actualCheckInTime DATETIME,
         timestamp DATETIME,
+        actualTime DATETIME,
         inputSentence TEXT,
         inputEmoji TEXT
       )
     ''');
+  }
+}
+
+Future<void> insertEntry(Entry entry) async {
+  final db = await Db.get();
+
+  await db.insert(
+    'entries',
+    entry.toMap(),
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
+}
+
+class Entry {
+  final DateTime timestamp;
+  final DateTime actualTime;
+  final String emoji;
+  final String sentence;
+
+  Entry({
+    required this.timestamp,
+    required this.actualTime,
+    required this.emoji,
+    required this.sentence,
+  });
+
+  Map<String, Object?> toMap() {
+    return {
+      'timestamp': timestamp,
+      'actualTime': actualTime,
+      'emoji': emoji,
+      'sentence': sentence,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'Entry{timestamp: $timestamp, actualTime: $actualTime, emoji: $emoji, sentence: $sentence}';
   }
 }
