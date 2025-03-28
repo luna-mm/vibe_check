@@ -3,10 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:vibe_check/cards.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:sqflite/sqflite.dart';
 import 'database_helper.dart';
 
-void main() {
+void main() async{
   AwesomeNotifications().initialize(
     null,
     [
@@ -17,6 +16,12 @@ void main() {
       ),
     ],
   );
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await DatabaseHelper.instance.initDb();
+  await DatabaseHelper.instance.initializeSampleEntries(); // For presentation on Friday
+
   runApp(const MyApp());
 }
 
@@ -35,7 +40,7 @@ class MyApp extends StatelessWidget {
         title: "Vibe Check",
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.pink),
         ),
         home: HomePage(),
       ),
@@ -88,7 +93,7 @@ class _HomePageState extends State<HomePage> {
           });
         },
         indicatorColor: Theme.of(context).colorScheme.primary,
-        selectedIndex: currentIndex,
+        selectedIndex: currentIndex,  
         destinations: const <Widget>[
           NavigationDestination(icon: Icon(Icons.home), label: "Home"),
           NavigationDestination(
@@ -174,11 +179,11 @@ class AnalysisPage extends StatelessWidget {
           return index == 0
               ? ListTile(
                 title: Text(
-                  "Hello! :)",
+                  "Vibe Check",
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
                 subtitle: Text(
-                  "Welcome to Vibe Check, your personal mood tracker",
+                  "Here are your stats!",
                 ),
               )
               : index == 1
