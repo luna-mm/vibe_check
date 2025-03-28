@@ -4,23 +4,22 @@ import 'package:provider/provider.dart';
 import 'package:vibe_check/cards.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'database_helper.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-void main() async{
-  AwesomeNotifications().initialize(
-    null,
-    [
-      NotificationChannel(
-        channelKey: 'test_channel',
-        channelName: 'Test Notifications',
-        channelDescription: 'Our first of many notifications!',
-      ),
-    ],
-  );
+void main() async {
+  AwesomeNotifications().initialize(null, [
+    NotificationChannel(
+      channelKey: 'test_channel',
+      channelName: 'Test Notifications',
+      channelDescription: 'Our first of many notifications!',
+    ),
+  ]);
 
   WidgetsFlutterBinding.ensureInitialized();
 
   await DatabaseHelper.instance.initDb();
-  await DatabaseHelper.instance.initializeSampleEntries(); // For presentation on Friday
+  await DatabaseHelper.instance
+      .initializeSampleEntries(); // For presentation on Friday
 
   runApp(const MyApp());
 }
@@ -68,14 +67,14 @@ class _HomePageState extends State<HomePage> {
 
   // Ask the user for permission to send notifications.
   @override
-  void initState() { 
+  void initState() {
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      if (!isAllowed){
+      if (!isAllowed) {
         AwesomeNotifications().requestPermissionToSendNotifications();
       }
     });
-    super.initState(); 
-  } 
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +92,7 @@ class _HomePageState extends State<HomePage> {
           });
         },
         indicatorColor: Theme.of(context).colorScheme.primary,
-        selectedIndex: currentIndex,  
+        selectedIndex: currentIndex,
         destinations: const <Widget>[
           NavigationDestination(icon: Icon(Icons.home), label: "Home"),
           NavigationDestination(
@@ -136,7 +135,7 @@ class PlaceholderPage extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: triggerNotification,
-          child: const Text('Notify me!')
+          child: const Text('Notify me!'),
         ),
       ),
     );
@@ -180,11 +179,17 @@ class AnalysisPage extends StatelessWidget {
               ? ListTile(
                 title: Text(
                   "Vibe Check",
-                  style: Theme.of(context).textTheme.headlineLarge,
+                  style: GoogleFonts.delius(
+                    textStyle: Theme.of(
+                      context,
+                    ).textTheme.headlineLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 32,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
                 ),
-                subtitle: Text(
-                  "Here are your stats!",
-                ),
+                subtitle: Text("Here are your stats!"),
               )
               : index == 1
               ? cardList[0]
@@ -239,10 +244,14 @@ class _CheckInPageState extends State<CheckInPage> {
                 children: <Widget>[
                   Text(
                     "Vibe Check!",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 40,
-                      fontStyle: FontStyle.italic,
+                    style: GoogleFonts.delius(
+                      textStyle: Theme.of(
+                        context,
+                      ).textTheme.headlineLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 40,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                   ),
                   SizedBox(height: 16),
