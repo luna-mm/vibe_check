@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:vibe_check/cards.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:sqflite/sqflite.dart';
 import 'database_helper.dart';
 
@@ -49,6 +50,17 @@ class HomePage extends StatefulWidget {
 /// State for the HomePage widget
 class _HomePageState extends State<HomePage> {
   var currentIndex = 0;
+
+  // Ask the user for permission to send notifications.
+  @override
+  void initState() { 
+    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if (!isAllowed){
+        AwesomeNotifications().requestPermissionToSendNotifications();
+      }
+    });
+    super.initState(); 
+  } 
 
   @override
   Widget build(BuildContext context) {
