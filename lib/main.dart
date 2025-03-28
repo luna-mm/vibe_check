@@ -6,6 +6,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:vibe_check/entry.dart';
 import 'database_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_confetti/flutter_confetti.dart';
 
 void main() async {
   AwesomeNotifications().initialize(null, [
@@ -403,6 +404,14 @@ class _CheckInPageState extends State<CheckInPage> {
                           ),
                         );
                       } else {
+                        Confetti.launch(
+                          context,
+                          options: const ConfettiOptions(
+                            particleCount: 100,
+                            spread: 70,
+                            y: 0.6,
+                          ),
+                        );
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Checked in!'),
