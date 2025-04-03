@@ -330,19 +330,16 @@ class _CheckInPageState extends State<CheckInPage> {
                     ),
                   ),
                   SizedBox(height: 16),
-                  Text.rich(
-                    TextSpan(
-                      style: TextStyle(fontSize: 17),
-                      children: [
-                        WidgetSpan(child: Icon(Icons.calendar_month)),
-                        TextSpan(
-                          text: DateFormat(" MMM d, y ").format(timestamp),
-                        ),
-                        WidgetSpan(child: Icon(Icons.schedule)),
-                        TextSpan(
-                          text: DateFormat(" h:mm a ").format(timestamp),
-                        ),
-                      ],
+                  Text(
+                    "How are you feeling?",
+                    style: GoogleFonts.deliusSwashCaps(
+                      textStyle: Theme.of(
+                        context,
+                      ).textTheme.headlineLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                     ),
                   ),
                   SizedBox(height: 20),
