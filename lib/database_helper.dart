@@ -24,7 +24,6 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE entries (
         id INTEGER PRIMARY KEY,
-        actualTime INTEGER,
         emoji TEXT,
         sentence TEXT
       )
@@ -55,13 +54,13 @@ class DatabaseHelper {
   /// This function initializes the database with some sample entries.
   Future<void> initializeSampleEntries() async {
     List<Entry> entriesToAdd = [
-      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 1)), emoji: '😊', sentence: 'Finally got the database working!'),
-      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 2)), emoji: '😔', sentence: 'The database isn\'t working! This sucks :('),
-      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 3)), emoji: '🫠', sentence: 'Cafe Mac was so bad today.'),
-      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 4)), emoji: '😒', sentence: 'smh'),
-      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 5)), emoji: '😡', sentence: 'My computer decided to break down for no reason ugh'),
-      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 6)), emoji: '🫢', sentence: 'Oops I think I totally got overheard lol'),
-      Entry(actualTime: DateTime.now(), id: DateTime.now().subtract(Duration(days: 7)), emoji: '😊', sentence: 'First entry wooh hooooo yayayayyy'),
+      Entry(id: DateTime.now().subtract(Duration(days: 1)), emoji: '😊', sentence: 'Finally got the database working!'),
+      Entry(id: DateTime.now().subtract(Duration(days: 2)), emoji: '😔', sentence: 'The database isn\'t working! This sucks :('),
+      Entry(id: DateTime.now().subtract(Duration(days: 3)), emoji: '🫠', sentence: 'Cafe Mac was so bad today.'),
+      Entry(id: DateTime.now().subtract(Duration(days: 4)), emoji: '😒', sentence: 'smh'),
+      Entry(id: DateTime.now().subtract(Duration(days: 5)), emoji: '😡', sentence: 'My computer decided to break down for no reason ugh'),
+      Entry(id: DateTime.now().subtract(Duration(days: 6)), emoji: '🫢', sentence: 'Oops I think I totally got overheard lol'),
+      Entry(id: DateTime.now().subtract(Duration(days: 7)), emoji: '😊', sentence: 'First entry wooh hooooo yayayayyy'),
     ];
 
     for (Entry entry in entriesToAdd) {

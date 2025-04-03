@@ -50,11 +50,11 @@ class StreakCard extends StatelessWidget {
           ListTile(
             /// TODO: Add text formatting (from theme)
             title: Text("Current Streak"),
-            subtitle: Text("streak days"),
+            subtitle: Text("${entries.length} days"),
           ),
           ListTile(
             title: Text("Longest Streak"),
-            subtitle: Text("longestStreak days"),
+            subtitle: Text("${entries.length} days"),
           ),
         ],
       ),
