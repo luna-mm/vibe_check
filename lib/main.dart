@@ -47,7 +47,6 @@ class MyApp extends StatelessWidget {
 
 /// State used to manage when to prompt the user to check in
 class CheckInState extends ChangeNotifier {
-  var checkInTime = DateTime.now();
   var checkInPending = false;
 }
 
@@ -303,7 +302,6 @@ class _CheckInPageState extends State<CheckInPage> {
   @override
   Widget build(BuildContext context) {
     var checkInState = context.watch<CheckInState>();
-    var timestamp = checkInState.checkInTime;
 
     return GestureDetector(
       onTap: () {
@@ -389,7 +387,7 @@ class _CheckInPageState extends State<CheckInPage> {
                   SizedBox(height: 20),
 
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (selectedEmoji == null &&
                           textController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -416,7 +414,13 @@ class _CheckInPageState extends State<CheckInPage> {
                           ),
                         );
 
-                        // TODO: Save check-in data to the database.
+                        Entry newEntry = Entry(
+                          id: DateTime.now(),
+                          emoji: selectedEmoji!,
+                          sentence: textController.text,
+                        );
+
+                        await DatabaseHelper.instance.insertEntry(newEntry);
 
                         resetCheckIn();
                         Navigator.pushReplacement(
