@@ -354,7 +354,11 @@ class _CheckInPageState extends State<CheckInPage> {
                       return GestureDetector(
                         onTap: () {
                           setState(() {
-                            selectedEmoji = emojis[index];
+                            if (selectedEmoji == emojis[index]) {
+                              selectedEmoji = null;
+                            } else {
+                              selectedEmoji = emojis[index];
+                            }
                           });
                         },
                         child: Container(
