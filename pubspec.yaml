@@ -41,6 +41,7 @@ dependencies:
   awesome_notifications: ^0.10.1
   google_fonts: ^6.2.1
   flutter_confetti: ^0.5.1
+  word_cloud: ^1.0.3
 
 dev_dependencies:
   flutter_test:

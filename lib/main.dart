@@ -139,11 +139,6 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
     setState(() {
       _entries = entryMap.map((entryMap) => Entry.fromMap(entryMap)).toList();
     });
-
-    // Debug
-    for (var entry in _entries) {
-      print(entry.toString());
-    }
   }
 
   @override
@@ -226,7 +221,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
     // TODO: Implement Edit page and allow user to add and remove cards, along with changing the order of the cards.
     var cardList = <Widget>[
       StreakCard(entries: _entries),
-      LastDaysCard(entries: _entries),
+      RecapCard(entries: _entries),
       WordCloudCard(entries: _entries),
     ];
 
