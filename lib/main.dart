@@ -47,6 +47,7 @@ class MyApp extends StatelessWidget {
 
 /// State used to manage when to prompt the user to check in
 class CheckInState extends ChangeNotifier {
+  var checkInTime = DateTime.now();
   var checkInPending = false;
 }
 
@@ -297,6 +298,7 @@ class _CheckInPageState extends State<CheckInPage> {
   @override
   Widget build(BuildContext context) {
     var checkInState = context.watch<CheckInState>();
+    var timestamp = checkInState.checkInTime;
 
     return GestureDetector(
       onTap: () {
@@ -323,16 +325,19 @@ class _CheckInPageState extends State<CheckInPage> {
                     ),
                   ),
                   SizedBox(height: 16),
-                  Text(
-                    "How are you feeling?",
-                    style: GoogleFonts.deliusSwashCaps(
-                      textStyle: Theme.of(
-                        context,
-                      ).textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                  Text.rich(
+                    TextSpan(
+                      style: TextStyle(fontSize: 17),
+                      children: [
+                        WidgetSpan(child: Icon(Icons.calendar_month)),
+                        TextSpan(
+                          text: DateFormat(" MMM d, y ").format(timestamp),
+                        ),
+                        WidgetSpan(child: Icon(Icons.schedule)),
+                        TextSpan(
+                          text: DateFormat(" h:mm a ").format(timestamp),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(height: 20),
@@ -349,11 +354,7 @@ class _CheckInPageState extends State<CheckInPage> {
                       return GestureDetector(
                         onTap: () {
                           setState(() {
-                            if (selectedEmoji == emojis[index]) {
-                              selectedEmoji = null;
-                            } else {
-                              selectedEmoji = emojis[index];
-                            }
+                            selectedEmoji = emojis[index];
                           });
                         },
                         child: Container(
@@ -386,7 +387,7 @@ class _CheckInPageState extends State<CheckInPage> {
                   SizedBox(height: 20),
 
                   ElevatedButton(
-                    onPressed: () async {
+                    onPressed: () {
                       if (selectedEmoji == null &&
                           textController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -413,13 +414,7 @@ class _CheckInPageState extends State<CheckInPage> {
                           ),
                         );
 
-                        Entry newEntry = Entry(
-                          id: DateTime.now(),
-                          emoji: selectedEmoji!,
-                          sentence: textController.text,
-                        );
-
-                        await DatabaseHelper.instance.insertEntry(newEntry);
+                        // TODO: Save check-in data to the database.
 
                         resetCheckIn();
                         Navigator.pushReplacement(
