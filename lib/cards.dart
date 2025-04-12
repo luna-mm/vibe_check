@@ -3,10 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:vibe_check/entry.dart';
 import 'package:word_cloud/word_cloud.dart';
 
-/// This file contains various "cards", widgets displayed on the Analysis page
-/// that display the user's statistics in varying ways.
+// This file contains various "cards", widgets displayed on the Analysis page
+// that display the user's statistics in varying ways.
 
-// Card that displays the user's current and longest streaks
+/// Card that displays the user's current and longest streaks
 class StreakCard extends StatelessWidget {
   final List<Entry> entries;
 
@@ -30,7 +30,7 @@ class StreakCard extends StatelessWidget {
   }
 }
 
-// Card that displays the user's emojis the past x (currently 5) days
+/// Card that displays the user's emojis the past x (currently 5) days
 class RecapCard extends StatelessWidget {
   final List<Entry> entries;
 
@@ -46,7 +46,7 @@ class RecapCard extends StatelessWidget {
     // Generate list for the last x days
     final int x = 5;
     final days = List.generate(x, (i) {
-      final date = now.subtract(Duration(days: (x - 1) - i));
+      final date = now.subtract(Duration(days: x-1 - i));
       final emojis = getDay(entries, date).map((entry) => entry.emoji).toList();
       return _RecapColumn(date: date, emojis: emojis);
     });
@@ -95,124 +95,6 @@ class _RecapColumn extends StatelessWidget {
     );
   }
 }
-
-// /// Card that displays the user's emojis in the last 7 days
-// class RecapCard extends StatelessWidget {
-//   final List<Entry> entries;
-
-//   const RecapCard({
-//     required this.entries,
-//     super.key
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     DateTime now = DateTime.now();
-//     List<String> todayEmojis = getDay(entries, now).map((entry) => entry.emoji).toList();
-//     List<String> yesterdayEmojis = getDay(entries, now.subtract(const Duration(days: 1))).map((entry) => entry.emoji).toList();
-//     List<String> twoDaysAgoEmojis = getDay(entries, now.subtract(const Duration(days: 2))).map((entry) => entry.emoji).toList();
-//     List<String> threeDaysAgoEmojis = getDay(entries, now.subtract(const Duration(days: 3))).map((entry) => entry.emoji).toList();
-//     List<String> fourDaysAgoEmojis = getDay(entries, now.subtract(const Duration(days: 4))).map((entry) => entry.emoji).toList();
-
-//     final BoxDecoration decor = BoxDecoration(
-//       color: Theme.of(context).colorScheme.secondaryContainer,
-//       border: Border.all(color: Theme.of(context).colorScheme.secondaryContainer),
-//       borderRadius: BorderRadius.all(Radius.circular(10.0))
-//     );
-
-//     return Card(
-//       child: Column(
-//         children: <Widget>[
-//           ListTile(
-//             title: Text("Last 5 Days"),
-//             subtitle: Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//               spacing: 10,
-//               children: <Widget>[
-//                 Expanded(
-//                   child: Container(
-//                     decoration: decor,
-//                     padding: EdgeInsets.all(10),
-//                     child: Column(
-//                       spacing: 10,
-//                       children: [
-//                         Text(DateFormat('EEE').format(now.subtract(const Duration(days: 4)))) ,
-//                         if (fourDaysAgoEmojis.isNotEmpty)
-//                           Text(fourDaysAgoEmojis.join("\n"))
-//                         else Text(" - "),
-//                       ]
-//                     )
-//                   ),
-//                 ),
-//                 Expanded(
-//                   child: Container(
-//                     decoration: decor,
-//                     padding: EdgeInsets.all(10),
-//                     child: Column(
-//                       spacing: 10,
-//                       children: [
-//                         Text(DateFormat('EEE').format(now.subtract(const Duration(days: 3)))),
-//                         if (threeDaysAgoEmojis.isNotEmpty)
-//                           Text(threeDaysAgoEmojis.join("\n"))
-//                         else Text(" - "),
-//                       ]
-//                     )
-//                   ),
-//                 ),
-//                 Expanded(
-//                   child: Container(
-//                     decoration: decor,
-//                     padding: EdgeInsets.all(10),
-//                     child: Column(
-//                       spacing: 10,
-//                       children: [
-//                         Text(DateFormat('EEE').format(now.subtract(const Duration(days: 2)))),
-//                         if (twoDaysAgoEmojis.isNotEmpty)
-//                           Text(twoDaysAgoEmojis.join("\n"))
-//                         else Text(" - "),
-//                       ]
-//                     )
-//                   ),
-//                 ),
-//                 Expanded(
-//                   child: Container(
-//                     decoration: decor,
-//                     padding: EdgeInsets.all(10),
-//                     child: Column(
-//                       spacing: 10,
-//                       children: [
-//                         Text(
-//                           DateFormat('EEE').format(now.subtract(const Duration(days: 1)))),
-//                         if (yesterdayEmojis.isNotEmpty)
-//                           Text(yesterdayEmojis.join("\n"))
-//                         else Text(" - "),
-//                       ]
-//                     )
-//                   ),
-//                 ),
-//                 Expanded(
-//                   child: Container(
-//                     decoration: decor,
-//                     padding: EdgeInsets.all(10),
-//                     child: Column(
-//                       spacing: 10,
-//                       children: [
-//                         Text(DateFormat('EEE').format(now)),
-//                         if (todayEmojis.isNotEmpty)
-//                           Text(todayEmojis.join("\n"))
-//                         else Text(" - "),
-//                       ]
-//                     )
-//                   ),
-//                 ),
-//               ]
-//             )
-//           )
-//         ],
-//       ),
-//     );
-//   }
-// }
 
 /// Card that displays a wordcloud of the user's entries the last 7 days
 class WordCloudCard extends StatefulWidget {
@@ -360,7 +242,7 @@ Future<WordCloudData> getWordcloudWidget(List<Entry> entries) async {
 }
 
 /// For development purposes only
-/// Card that displays all entries in the database
+/// Widget that displays all entries in the database
 class AllEntriesWidget extends StatelessWidget {
   final List<Entry> entries;
   

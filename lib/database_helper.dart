@@ -71,7 +71,7 @@ class DatabaseHelper {
         sentence: 'Finally got the database working!',
       ),
       Entry(
-        id: DateTime.now().subtract(Duration(days: 1)),
+        id: DateTime.now().subtract(Duration(days: 2)),
         emoji: '😔',
         sentence: 'The database isn\'t working! This sucks :(',
       ),
