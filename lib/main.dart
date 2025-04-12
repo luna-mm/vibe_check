@@ -222,7 +222,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
     // TODO: Implement Edit page and allow user to add and remove cards, along with changing the order of the cards.
     var cardList = <Widget>[
       StreakCard(entries: _entries),
-      _RecapCard(entries: _entries),
+      RecapCard(entries: _entries),
       WordCloudCard(entries: _entries),
     ];
 

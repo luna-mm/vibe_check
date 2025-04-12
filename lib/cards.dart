@@ -48,17 +48,15 @@ class RecapCard extends StatelessWidget {
     final days = List.generate(x, (i) {
       final date = now.subtract(Duration(days: x-1 - i));
       final emojis = getDay(entries, date).map((entry) => entry.emoji).toList();
-      return _RecapColumn(date: date, emojis: emojis);
+      return _RecapColumn(date: date, emojis: (emojis.isEmpty) ? ["🫥"] : emojis);
     });
 
     return Card(
       child: ListTile(
         title: Text("Recap - Last $x days"),
-        subtitle: Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 8,
-          runSpacing: 8,
-          children: days
+        subtitle: Row(
+          spacing: 5,
+          children: days.map((widget) => Expanded(child: widget)).toList()
         )
       )
     );
@@ -77,9 +75,12 @@ class _RecapColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card.filled(
+      clipBehavior: Clip.antiAliasWithSaveLayer, 
       child: Column(
         children: [
           Container(
+            width: double.infinity,
+            alignment: Alignment.center,
             padding: EdgeInsets.all(5),
             color: Theme.of(context).colorScheme.primaryContainer,
             child: Text(DateFormat('EEE').format(date))
