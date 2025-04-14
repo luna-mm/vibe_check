@@ -467,6 +467,10 @@ class _CheckInPageState extends State<CheckInPage> {
                           ),
                         );
                       } else {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
                         Confetti.launch(
                           context,
                           options: const ConfettiOptions(
@@ -491,10 +495,6 @@ class _CheckInPageState extends State<CheckInPage> {
                         await DatabaseHelper.instance.insertEntry(newEntry);
 
                         resetCheckIn();
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => HomePage()),
-                        );
                       }
                     },
                     child: Text('Check In'),
@@ -522,6 +522,7 @@ class _CalendarViewState extends State<CalendarView> {
   late DateTime _firstDayOfMonth;
   late int _daysInMonth;
   DateTime? _selectedDate;
+  int _firstDayOfWeek = 0;
 
   List<Entry> _allEntries = [];
   Map<String, String> _emojiByDate = {};
@@ -606,8 +607,12 @@ class _CalendarViewState extends State<CalendarView> {
 
   @override
   Widget build(BuildContext context) {
-    int startWeekday = _firstDayOfMonth.weekday % 7;
+    int startWeekday = (_firstDayOfMonth.weekday - _firstDayOfWeek + 7) % 7;
     List<String> weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    List<String> adjustedWeekdayNames = [
+      ...weekdayNames.sublist(_firstDayOfWeek),
+      ...weekdayNames.sublist(0, _firstDayOfWeek),
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -652,7 +657,7 @@ class _CalendarViewState extends State<CalendarView> {
             ),
 
             Row(
-              children: weekdayNames.map((day) => Expanded(
+              children: adjustedWeekdayNames.map((day) => Expanded(
                 child: Center(
                   child: Text(day, style: GoogleFonts.lato(fontSize: 14, fontWeight: FontWeight.bold)),
                 ),
