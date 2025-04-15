@@ -45,12 +45,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// State used to manage when to prompt the user to check in
-class CheckInState extends ChangeNotifier {
-  var checkInTime = DateTime.now();
-  var checkInPending = false;
-}
-
 /// Main home page of the Vibe Check app
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -107,23 +101,23 @@ class _HomePageState extends State<HomePage> {
         children: const <Widget>[
           AnalysisPage(),
           CheckInPage(),
-          DevSettingsPage(),
+          SettingsPage(),
         ],
       ),
     );
   }
 }
 
-// The development settings page for the app.
-// Not intended for production use!
-class DevSettingsPage extends StatefulWidget {
-  const DevSettingsPage({super.key});
+/// The setting page where user can customize UI, notifications and manage data
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
 
   @override
-  State<DevSettingsPage> createState() => _DevSettingsPageState();
+  State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _DevSettingsPageState extends State<DevSettingsPage> {
+/// State for the SettingPage widget
+class _SettingsPageState extends State<SettingsPage> {
   List<Entry> _entries = [];
 
   triggerNotification() {
@@ -151,8 +145,8 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
 
   @override
   void initState() {
-    _fetchEntries();
     super.initState();
+    _fetchEntries();
   }
 
   Widget _sectionTitle(String title) {
@@ -215,13 +209,11 @@ class _DevSettingsPageState extends State<DevSettingsPage> {
           }),
 
           _sectionTitle("Data"),
-          ElevatedButton(
-            onPressed: () {
-              // TODO
-            },
-            child: Text("Manage My Data"),
-          ),
-          SizedBox(height: 10),
+          _settingsOpt(Icons.notifications, "Manage My Data", onTap: () {
+            // TODO
+          }),
+
+          // Debugging button
           ElevatedButton(
             onPressed: () {
               triggerNotification();
@@ -338,8 +330,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
   }
 }
 
-/// The page where the user can check in their mood.
-/// Prompts the user to pick one of 6 displayed emojis and log a sentence.
+/// The check in page where user can check in their mood.
 class CheckInPage extends StatefulWidget {
   const CheckInPage({super.key});
 
@@ -347,14 +338,17 @@ class CheckInPage extends StatefulWidget {
   State<CheckInPage> createState() => _CheckInPageState();
 }
 
+/// State to manage when to send notification
+class CheckInState extends ChangeNotifier {
+  var checkInTime = DateTime.now();
+  var checkInPending = false;
+}
+
+/// State for the check in page widget
 class _CheckInPageState extends State<CheckInPage> {
   String? selectedEmoji;
   TextEditingController textController = TextEditingController();
-
-
-  // The list of emojis that user can choose from
   final List<String> emojis = ['😊', '😔', '🫠', '😒', '😡', '🫢'];
-
 
   void resetCheckIn() {
     setState(() {
@@ -366,7 +360,6 @@ class _CheckInPageState extends State<CheckInPage> {
   @override
   Widget build(BuildContext context) {
     var checkInState = context.watch<CheckInState>();
-    var timestamp = checkInState.checkInTime;
 
     return GestureDetector(
       onTap: () {
@@ -383,9 +376,7 @@ class _CheckInPageState extends State<CheckInPage> {
                   Text(
                     "Vibe Check!",
                     style: GoogleFonts.deliusSwashCaps(
-                      textStyle: Theme.of(
-                        context,
-                      ).textTheme.headlineLarge?.copyWith(
+                      textStyle: Theme.of(context).textTheme.headlineLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 40,
                         color: Theme.of(context).colorScheme.primary,
@@ -393,20 +384,15 @@ class _CheckInPageState extends State<CheckInPage> {
                     ),
                   ),
                   SizedBox(height: 16),
-                  Text.rich(
-                    TextSpan(
-                      style: TextStyle(fontSize: 17),
-                      children: [
-                        WidgetSpan(child: Icon(Icons.calendar_month)),
-                        TextSpan(
-                          text: DateFormat(" MMM d, y ").format(timestamp),
-                        ),
-                        WidgetSpan(child: Icon(Icons.schedule)),
-                        TextSpan(
-                          text: DateFormat(" h:mm a ").format(timestamp),
-                        ),
-                      ],
-                    ),
+                  Text(
+                     "How are you feeling?",
+                     style: GoogleFonts.deliusSwashCaps(
+                       textStyle: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                         fontWeight: FontWeight.bold,
+                         fontSize: 20,
+                         color: Theme.of(context).colorScheme.secondary,
+                       ),
+                     ),
                   ),
                   SizedBox(height: 20),
 
@@ -422,16 +408,20 @@ class _CheckInPageState extends State<CheckInPage> {
                       return GestureDetector(
                         onTap: () {
                           setState(() {
-                            selectedEmoji = emojis[index];
+                            if (selectedEmoji == emojis[index]) {
+                              selectedEmoji = null;
+                            } else {
+                              selectedEmoji = emojis[index];
+                            }
                           });
                         },
                         child: Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color:
-                                selectedEmoji == emojis[index]
-                                    ? const Color.fromARGB(255, 246, 180, 180)
-                                    : const Color.fromARGB(255, 246, 228, 228),
+                              selectedEmoji == emojis[index]
+                                ? const Color.fromARGB(255, 246, 180, 180)
+                                : const Color.fromARGB(255, 246, 228, 228),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -456,45 +446,45 @@ class _CheckInPageState extends State<CheckInPage> {
 
                   ElevatedButton(
                     onPressed: () async {
-                      if (selectedEmoji == null &&
-                          textController.text.isEmpty) {
+                      if (selectedEmoji == null && textController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
-                              'Please select an emoji and describe your mood!',
-                            ),
+                            content: Text('Please select an emoji and describe your mood!'),
                             duration: Duration(seconds: 2),
                           ),
                         );
                       } else {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => HomePage()),
-                        );
-                        Confetti.launch(
-                          context,
-                          options: const ConfettiOptions(
-                            particleCount: 100,
-                            spread: 70,
-                            y: 0.6,
-                          ),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Checked in!'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-
                         Entry newEntry = Entry(
                           id: DateTime.now(),
                           emoji: selectedEmoji!,
                           sentence: textController.text,
                         );
 
+                        // Ensuring that context is used safely after async operation
                         await DatabaseHelper.instance.insertEntry(newEntry);
 
-                        resetCheckIn();
+                        // Check if the widget is still mounted before calling setState
+                        if (mounted) {
+                          resetCheckIn();
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => HomePage()),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Checked in!'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                          Confetti.launch(
+                            context,
+                            options: const ConfettiOptions(
+                              particleCount: 100,
+                              spread: 70,
+                              y: 0.6,
+                            ),
+                          );
+                        }
                       }
                     },
                     child: Text('Check In'),
@@ -509,7 +499,7 @@ class _CheckInPageState extends State<CheckInPage> {
   }
 }
 
-/// Calendar view of mood check-ins for each day of the selected month.
+/// The calendar view where user can see their past entries
 class CalendarView extends StatefulWidget {
   const CalendarView({super.key});
 
@@ -517,12 +507,13 @@ class CalendarView extends StatefulWidget {
   State<CalendarView> createState() => _CalendarViewState();
 }
 
+/// State for the calendar view widget
 class _CalendarViewState extends State<CalendarView> {
   final DateTime _now = DateTime.now();
+  final int _firstDayOfWeek = 0;
   late DateTime _firstDayOfMonth;
   late int _daysInMonth;
   DateTime? _selectedDate;
-  int _firstDayOfWeek = 0;
 
   List<Entry> _allEntries = [];
   Map<String, String> _emojiByDate = {};
@@ -550,6 +541,7 @@ class _CalendarViewState extends State<CalendarView> {
     }
 
     _emojiByDate = {for (var entry in lastByDate.entries) entry.key: entry.value.emoji};
+
     _updateSelectedDateEntries();
   }
 
