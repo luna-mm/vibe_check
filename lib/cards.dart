@@ -127,7 +127,7 @@ class _WordCloudCardState extends State<WordCloudCard> {
   }
 
   Future<void> makeWordcloud(List<Entry> entries) async {
-    WordCloudData out = await getWordcloudWidget(entries);
+    WordCloudData? out = await getWordcloudWidget(entries);
     setState(() {
       _data = out;
       isDataReady = true;
@@ -208,8 +208,11 @@ int getStreak(List<Entry> entries) {
 }
 
 // Returns words and their frequencies in the last 5 days
-Future<WordCloudData> getWordcloudWidget(List<Entry> entries) async {
+Future<WordCloudData?> getWordcloudWidget(List<Entry> entries) async {
   DateTime now = DateTime.now();
+
+  if (entries.isEmpty) return null;
+
   List<String> sentences = getDay(entries, now).map((entry) => entry.sentence).toList() + 
                            getDay(entries, now.subtract(const Duration(days: 1))).map((entry) => entry.sentence).toList() + 
                            getDay(entries, now.subtract(const Duration(days: 2))).map((entry) => entry.sentence).toList() +
