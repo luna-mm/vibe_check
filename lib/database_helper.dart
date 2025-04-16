@@ -4,6 +4,68 @@ import 'package:sqflite/sqflite.dart';
 import 'entry.dart';
 import 'package:intl/intl.dart';
 
+// This class is used by Widgets who display and access data in the database.
+// This class is a ChangeNotifier, so any time there was a change to the dataset
+// it will update any already built widgets to display the new data.
+class Data extends ChangeNotifier {
+  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
+
+  /// Variables holding the current states of the database,
+  /// to prevent excessive read and writes.
+  final List<Entry> _entries = [];
+
+  /// The following commands do not change anything in the database,
+  /// so no widgets will be notified.
+
+  // Returns an immutable, iterable copy of the current entries in the database.
+  // If a DateTime is specified, it will return all entries for the given day.
+  Iterable<Entry> getEntries({DateTime? day}) {
+    if (day != null) {
+      return List.unmodifiable(_entries.where((entry) => DateUtils.isSameDay(day, entry.id)).toList());
+    }
+    
+    return List.unmodifiable(_entries);
+  }
+
+  /// The following commands results in a change being called.
+  /// Use responsibly ^_^
+
+  // Adds the specified entry to the database.
+  Future<int> addEntry(Entry entry) async {
+    int result = await _dbHelper.insertEntry(entry); 
+    if (result != 0) {
+      _entries.add(entry); // Local copy
+      notifyListeners(); // If adding the entry to database fails, nothing is notified.
+    }
+    return result;
+  }
+
+  // Removes the specified entry from the database.
+  Future<int> removeEntry(Entry entry) async {
+    if (_entries.contains(entry)) return 0;
+
+    int result = await _dbHelper.deleteEntry(entry.id); 
+    if (result != 0) {
+      _entries.remove(entry); // Local copy
+      notifyListeners(); // If adding the entry to database fails, nothing is notified.
+    }
+    return result;
+  }
+  
+  // Replaces the entry in the database with the same id (DateTime) as the given entry.
+  Future<int> modifyEntry(Entry entry) async {
+    int toModify = _entries.indexWhere((e) => e.id.isAtSameMomentAs(entry.id));
+    if (toModify == -1) return 0;
+
+    int result = await _dbHelper.updateEntry(entry); 
+    if (result != 0) {
+      _entries[toModify] = entry;
+      notifyListeners(); // If adding the entry to database fails, nothing is notified.
+    }
+    return result;
+  }
+}
+
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._instance();
   static Database? _database;
