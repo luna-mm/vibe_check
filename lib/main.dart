@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:vibe_check/cards.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:vibe_check/entry.dart';
-import 'database_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_confetti/flutter_confetti.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+
+import 'package:vibe_check/cards.dart';
+import 'package:vibe_check/entry.dart';
+import 'database_helper.dart';
 
 void main() async {
-  AwesomeNotifications().initialize(null, [
-    NotificationChannel(
-      channelKey: 'test_channel',
-      channelName: 'Test Notifications',
-      channelDescription: 'Our first of many notifications!',
-    ),
-  ]);
-
   WidgetsFlutterBinding.ensureInitialized();
   await DatabaseHelper.instance.initDb();
-  runApp(const MyApp());
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CheckInState()),
+        ChangeNotifierProvider(create: (_) => ThemeState()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 // Vibe Check App - your personal mood tracker
@@ -31,16 +34,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => CheckInState(),
-      child: MaterialApp(
-        title: "Vibe Check",
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.pink),
-        ),
-        home: HomePage(),
+    final themeSeedColor = context.watch<ThemeState>().themeSeedColor;
+
+    return MaterialApp(
+      title: "Vibe Check",
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: themeSeedColor),
       ),
+      home: const HomePage(),
     );
   }
 }
@@ -181,15 +183,23 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         title: Text(
           "Settings",
-          style: GoogleFonts.deliusSwashCaps(),
+          style: GoogleFonts.deliusSwashCaps(
+            fontWeight: FontWeight.bold,
+            fontSize: 40,
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
       ),
       body: ListView(
         children: [
           _sectionTitle("Customization"),
           _settingsOpt(Icons.palette, "Theme", onTap: () {
-            // TODO
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ThemeSelectorPage()),
+            );
           }),
+
           _settingsOpt(Icons.font_download, "Font", onTap: () {
             // TODO
           }),
@@ -240,6 +250,52 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Text("View All Entries"),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ThemeState extends ChangeNotifier {
+  Color _themeSeedColor = Colors.pink;
+  Color get themeSeedColor => _themeSeedColor;
+
+  void updateThemeSeedColor(Color color) {
+    _themeSeedColor = color;
+    notifyListeners();
+  }
+}
+
+class ThemeSelectorPage extends StatefulWidget {
+  @override
+  State<ThemeSelectorPage> createState() => _ThemeSelectorPageState();
+}
+
+class _ThemeSelectorPageState extends State<ThemeSelectorPage> {
+  late Color pickerColor;
+
+  @override
+  void initState() {
+    super.initState();
+    pickerColor = context.read<ThemeState>().themeSeedColor;
+  }
+
+  void changeColor(Color color) {
+    setState(() => pickerColor = color);
+    context.read<ThemeState>().updateThemeSeedColor(color);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Select Theme Color",
+          style: GoogleFonts.deliusSwashCaps(),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        // TODO: add color picker
       ),
     );
   }
@@ -359,7 +415,6 @@ class _CheckInPageState extends State<CheckInPage> {
 
   @override
   Widget build(BuildContext context) {
-    var checkInState = context.watch<CheckInState>();
 
     return GestureDetector(
       onTap: () {
@@ -418,10 +473,9 @@ class _CheckInPageState extends State<CheckInPage> {
                         child: Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color:
-                              selectedEmoji == emojis[index]
-                                ? const Color.fromARGB(255, 246, 180, 180)
-                                : const Color.fromARGB(255, 246, 228, 228),
+                            color: selectedEmoji == emojis[index]
+                                ? Theme.of(context).colorScheme.surfaceVariant
+                                : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -460,31 +514,27 @@ class _CheckInPageState extends State<CheckInPage> {
                           sentence: textController.text,
                         );
 
-                        // Ensuring that context is used safely after async operation
                         await DatabaseHelper.instance.insertEntry(newEntry);
 
-                        // Check if the widget is still mounted before calling setState
-                        if (mounted) {
-                          resetCheckIn();
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => HomePage()),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Checked in!'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                          Confetti.launch(
-                            context,
-                            options: const ConfettiOptions(
-                              particleCount: 100,
-                              spread: 70,
-                              y: 0.6,
-                            ),
-                          );
-                        }
+                        resetCheckIn();
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Checked in!'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        Confetti.launch(
+                          context,
+                          options: const ConfettiOptions(
+                            particleCount: 100,
+                            spread: 70,
+                            y: 0.6,
+                          ),
+                        );     
                       }
                     },
                     child: Text('Check In'),
