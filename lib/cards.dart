@@ -10,10 +10,7 @@ import 'package:word_cloud/word_cloud.dart';
 class StreakCard extends StatelessWidget {
   final List<Entry> entries;
 
-  const StreakCard({
-    required this.entries,
-    super.key,
-  });
+  const StreakCard({required this.entries, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +20,7 @@ class StreakCard extends StatelessWidget {
           ListTile(
             title: Text("Current Streak"),
             subtitle: Text("${getStreak(entries)} days"),
-          )
+          ),
         ],
       ),
     );
@@ -34,10 +31,7 @@ class StreakCard extends StatelessWidget {
 class RecapCard extends StatelessWidget {
   final List<Entry> entries;
 
-  const RecapCard({
-    required this.entries,
-    super.key,
-  });
+  const RecapCard({required this.entries, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +40,12 @@ class RecapCard extends StatelessWidget {
     // Generate list for the last x days
     final int x = 5;
     final days = List.generate(x, (i) {
-      final date = now.subtract(Duration(days: x-1 - i));
+      final date = now.subtract(Duration(days: x - 1 - i));
       final emojis = getDay(entries, date).map((entry) => entry.emoji).toList();
-      return _RecapColumn(date: date, emojis: (emojis.isEmpty) ? ["🫥"] : emojis);
+      return _RecapColumn(
+        date: date,
+        emojis: (emojis.isEmpty) ? ["🫥"] : emojis,
+      );
     });
 
     return Card(
@@ -56,9 +53,9 @@ class RecapCard extends StatelessWidget {
         title: Text("Recap - Last $x days"),
         subtitle: Row(
           spacing: 5,
-          children: days.map((widget) => Expanded(child: widget)).toList()
-        )
-      )
+          children: days.map((widget) => Expanded(child: widget)).toList(),
+        ),
+      ),
     );
   }
 }
@@ -67,15 +64,12 @@ class _RecapColumn extends StatelessWidget {
   final DateTime date;
   final List<String> emojis;
 
-  const _RecapColumn({
-    required this.date,
-    required this.emojis,
-  });
+  const _RecapColumn({required this.date, required this.emojis});
 
   @override
   Widget build(BuildContext context) {
     return Card.filled(
-      clipBehavior: Clip.antiAliasWithSaveLayer, 
+      clipBehavior: Clip.antiAliasWithSaveLayer,
       child: Column(
         children: [
           Container(
@@ -83,13 +77,19 @@ class _RecapColumn extends StatelessWidget {
             alignment: Alignment.center,
             padding: EdgeInsets.all(5),
             color: Theme.of(context).colorScheme.primaryContainer,
-            child: Text(DateFormat('EEE').format(date))
+            child: Text(DateFormat('EEE').format(date)),
           ),
           Container(
             padding: EdgeInsets.all(10),
+            height:
+                Theme.of(context).textTheme.headlineLarge!.fontSize! * 4 + 10,
+            alignment: Alignment.topLeft,
             child: Text(
+              emojis.join("\n"),
               style: Theme.of(context).textTheme.headlineLarge,
-              emojis.join("\n"))
+              maxLines: 3,
+              overflow: TextOverflow.clip,
+            ),
           ),
         ],
       ),
@@ -100,11 +100,8 @@ class _RecapColumn extends StatelessWidget {
 /// Card that displays a wordcloud of the user's entries the last 7 days
 class WordCloudCard extends StatefulWidget {
   final List<Entry> entries;
-  
-  const WordCloudCard({
-    required this.entries,
-    super.key
-  });
+
+  const WordCloudCard({required this.entries, super.key});
 
   @override
   State<WordCloudCard> createState() => _WordCloudCardState();
@@ -140,29 +137,32 @@ class _WordCloudCardState extends State<WordCloudCard> {
       makeWordcloud(widget.entries);
     }
 
-    return Card (
-      child: Column (
+    return Card(
+      child: Column(
         children: <Widget>[
           ListTile(
             title: Text("Wordcloud - Last 5 Days"),
-            subtitle: (_data == null) 
-              ? CircularProgressIndicator()
-              : FittedBox(
-                fit: BoxFit.fitWidth,
-                child: WordCloudView(
-                    data: _data!,
-                    mapwidth: 200,
-                    mapheight: 110,
-                    mintextsize: 10,
-                    maxtextsize: 16,
-                    colorlist: [Theme.of(context).colorScheme.primary,
-                                Theme.of(context).colorScheme.secondary,
-                                Theme.of(context).colorScheme.tertiary],
-                ),
-              )
-          )
-        ]
-      )
+            subtitle:
+                (_data == null)
+                    ? CircularProgressIndicator()
+                    : FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: WordCloudView(
+                        data: _data!,
+                        mapwidth: 200,
+                        mapheight: 110,
+                        mintextsize: 10,
+                        maxtextsize: 16,
+                        colorlist: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.secondary,
+                          Theme.of(context).colorScheme.tertiary,
+                        ],
+                      ),
+                    ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -170,7 +170,7 @@ class _WordCloudCardState extends State<WordCloudCard> {
 // Helper functions below
 List<Entry> getDay(List<Entry> entries, DateTime date) {
   List<Entry> out = [];
-  
+
   Iterable<Entry> rev = entries.reversed;
 
   for (Entry entry in rev) {
@@ -213,11 +213,24 @@ Future<WordCloudData?> getWordcloudWidget(List<Entry> entries) async {
 
   if (entries.isEmpty) return null;
 
-  List<String> sentences = getDay(entries, now).map((entry) => entry.sentence).toList() + 
-                           getDay(entries, now.subtract(const Duration(days: 1))).map((entry) => entry.sentence).toList() + 
-                           getDay(entries, now.subtract(const Duration(days: 2))).map((entry) => entry.sentence).toList() +
-                           getDay(entries, now.subtract(const Duration(days: 3))).map((entry) => entry.sentence).toList() +
-                           getDay(entries, now.subtract(const Duration(days: 4))).map((entry) => entry.sentence).toList();
+  List<String> sentences =
+      getDay(entries, now).map((entry) => entry.sentence).toList() +
+      getDay(
+        entries,
+        now.subtract(const Duration(days: 1)),
+      ).map((entry) => entry.sentence).toList() +
+      getDay(
+        entries,
+        now.subtract(const Duration(days: 2)),
+      ).map((entry) => entry.sentence).toList() +
+      getDay(
+        entries,
+        now.subtract(const Duration(days: 3)),
+      ).map((entry) => entry.sentence).toList() +
+      getDay(
+        entries,
+        now.subtract(const Duration(days: 4)),
+      ).map((entry) => entry.sentence).toList();
 
   List<String> words = [];
   for (String s in sentences) {
@@ -232,13 +245,13 @@ Future<WordCloudData?> getWordcloudWidget(List<Entry> entries) async {
 
   List<Map> dataMap = [];
   wordMap.forEach((key, value) {
-    dataMap.add({'word': key, 'value' : value});
+    dataMap.add({'word': key, 'value': value});
   });
 
   WordCloudData data = WordCloudData(data: dataMap);
   // Widget cloud = WordCloudView(
-  //   data: data, 
-  //   mapwidth: 2000, 
+  //   data: data,
+  //   mapwidth: 2000,
   //   mapheight: 1200,
   // );
 
@@ -249,27 +262,22 @@ Future<WordCloudData?> getWordcloudWidget(List<Entry> entries) async {
 /// Widget that displays all entries in the database
 class AllEntriesWidget extends StatelessWidget {
   final List<Entry> entries;
-  
-  const AllEntriesWidget({
-    required this.entries,
-    super.key
-  });
+
+  const AllEntriesWidget({required this.entries, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("All Entries"),
-      ),
+      appBar: AppBar(title: const Text("All Entries")),
       body: ListView.builder(
         itemCount: entries.length,
         itemBuilder: (context, index) {
           return ListTile(
             title: Text('Entry ${index + 1}'),
-            subtitle: Text(entries[index].toString())
+            subtitle: Text(entries[index].toString()),
           );
         },
-      )
+      ),
     );
   }
 }
