@@ -19,7 +19,10 @@ class StreakCard extends StatelessWidget {
         children: <Widget>[
           ListTile(
             title: Text("Current Streak"),
-            subtitle: Text("${getStreak(entries)} days"),
+            subtitle:
+                (getStreak(entries) == 1)
+                    ? Text("${getStreak(entries)} day")
+                    : Text("${getStreak(entries)} days"),
           ),
         ],
       ),
@@ -183,21 +186,38 @@ List<Entry> getDay(List<Entry> entries, DateTime date) {
 }
 
 int getStreak(List<Entry> entries) {
-  int streak = 0;
-  DateTime now = DateTime.now();
+  if (entries.isEmpty) return 0;
 
-  if (entries.isEmpty) {
+  int streak = 1;
+  DateTime now = DateTime.now();
+  DateTime lastEntryDate = entries.last.id;
+
+  now = DateTime(now.year, now.month, now.day);
+  lastEntryDate = DateTime(
+    lastEntryDate.year,
+    lastEntryDate.month,
+    lastEntryDate.day,
+  );
+
+  int difference = now.difference(lastEntryDate).inDays;
+
+  if (difference > 1) {
     return 0;
   }
 
-  DateTime lastEntryDate = entries.last.id;
+  for (int i = entries.length - 1; i > 0; i--) {
+    DateTime current = DateTime(
+      entries[i].id.year,
+      entries[i].id.month,
+      entries[i].id.day,
+    );
+    DateTime previous = DateTime(
+      entries[i - 1].id.year,
+      entries[i - 1].id.month,
+      entries[i - 1].id.day,
+    );
 
-  if (now.difference(lastEntryDate).inDays == 1) {
-    streak++;
-  }
-
-  for (int i = 1; i < entries.length; i++) {
-    if (entries[i].id.difference(entries[i - 1].id).inDays == 1) {
+    if (current.difference(previous).inDays == 1) {
       streak++;
     } else {
       break;
