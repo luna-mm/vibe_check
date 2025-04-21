@@ -313,7 +313,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
     var cardList = <Widget>[
       StreakCard(entries: _entries),
       RecapCard(entries: _entries),
-      // WordCloudCard(entries: _entries), // TODO: Fix
+      WordCloudCard(entries: _entries),
     ];
 
     return Scaffold(
