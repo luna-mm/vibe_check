@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_confetti/flutter_confetti.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-
 import 'package:vibe_check/cards.dart';
 import 'package:vibe_check/entry.dart';
 import 'database_helper.dart';
@@ -18,7 +15,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CheckInState()),
-        ChangeNotifierProvider(create: (_) => ThemeState()),
+        ChangeNotifierProvider(create: (_) => ThemeState())
       ],
       child: const MyApp(),
     ),
@@ -63,11 +60,6 @@ class _HomePageState extends State<HomePage> {
   // Ask the user for permission to send notifications.
   @override
   void initState() {
-    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      if (!isAllowed) {
-        AwesomeNotifications().requestPermissionToSendNotifications();
-      }
-    });
     super.initState();
   }
 
@@ -121,17 +113,6 @@ class SettingsPage extends StatefulWidget {
 /// State for the SettingPage widget
 class _SettingsPageState extends State<SettingsPage> {
   List<Entry> _entries = [];
-
-  triggerNotification() {
-    AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: 1,
-        channelKey: "test_channel",
-        title: "Vibe Check! (soon™)",
-        body: "Check in with yourself, what vibes are you feeling right now?",
-      ),
-    );
-  }
 
   Future<void> _fetchEntries() async {
     final entryMap = await DatabaseHelper.instance.queryAllEntries();
@@ -226,7 +207,7 @@ class _SettingsPageState extends State<SettingsPage> {
           // Debugging button
           ElevatedButton(
             onPressed: () {
-              triggerNotification();
+              // TODO: Implement proper notification system
             },
             child: Text("Trigger Notification"),
           ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'entry.dart';
-import 'package:intl/intl.dart';
 
 // This class is used by Widgets who display and access data in the database.
 // This class is a ChangeNotifier, so any time there was a change to the dataset
