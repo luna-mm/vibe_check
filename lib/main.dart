@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_confetti/flutter_confetti.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+
 import 'package:vibe_check/cards.dart';
 import 'package:vibe_check/entry.dart';
 import 'database_helper.dart';
@@ -54,7 +56,7 @@ class HomePage extends StatefulWidget {
 
 /// State for the HomePage widget
 class _HomePageState extends State<HomePage> {
-  var currentIndex = 0;
+  var currentIndex = 1;
 
 
   // Ask the user for permission to send notifications.
@@ -175,9 +177,9 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           _sectionTitle("Customization"),
           _settingsOpt(Icons.palette, "Theme", onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ThemeSelectorPage()),
+            showDialog(
+              context: context,
+              builder: (context) => const ThemeSelectorDialog(),
             );
           }),
 
@@ -246,38 +248,146 @@ class ThemeState extends ChangeNotifier {
   }
 }
 
-class ThemeSelectorPage extends StatefulWidget {
+class ThemeSelectorDialog extends StatefulWidget {
+  const ThemeSelectorDialog({super.key});
+
   @override
-  State<ThemeSelectorPage> createState() => _ThemeSelectorPageState();
+  State<ThemeSelectorDialog> createState() => _ThemeSelectorDialogState();
 }
 
-class _ThemeSelectorPageState extends State<ThemeSelectorPage> {
+class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
   late Color pickerColor;
+  final _hexController = TextEditingController();
+  final _rController = TextEditingController();
+  final _gController = TextEditingController();
+  final _bController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     pickerColor = context.read<ThemeState>().themeSeedColor;
+    _updateTextControllers(pickerColor);
   }
 
-  void changeColor(Color color) {
-    setState(() => pickerColor = color);
-    context.read<ThemeState>().updateThemeSeedColor(color);
+  void _updateTextControllers(Color color) {
+    final hex = color.value.toRadixString(16).padLeft(8, '0').toUpperCase();
+    _hexController.text = '#${hex.substring(2)}';
+    _rController.text = color.red.toString();
+    _gController.text = color.green.toString();
+    _bController.text = color.blue.toString();
+  }
+
+  void _onHexChanged(String value) {
+    final hex = value.replaceAll('#', '');
+    if (hex.length == 6) {
+      try {
+        final color = Color(int.parse('FF$hex', radix: 16));
+        setState(() {
+          pickerColor = color;
+          _updateTextControllers(color);
+        });
+      } catch (_) {}
+    }
+  }
+
+  void _onRGBChanged() {
+    try {
+      final r = int.parse(_rController.text);
+      final g = int.parse(_gController.text);
+      final b = int.parse(_bController.text);
+      if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) {
+        final color = Color.fromARGB(255, r, g, b);
+        setState(() {
+          pickerColor = color;
+          _updateTextControllers(color);
+        });
+      }
+    } catch (_) {}
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Select Theme Color",
-          style: GoogleFonts.deliusSwashCaps(),
+    return AlertDialog(
+      title: Text(
+        'Select Theme Color',
+        style: GoogleFonts.deliusSwashCaps(),
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ColorPicker(
+              pickerColor: pickerColor,
+              onColorChanged: (color) {
+                setState(() {
+                  pickerColor = color;
+                  _updateTextControllers(color);
+                });
+              },
+              enableAlpha: false,
+              pickerAreaHeightPercent: 0.7,
+              displayThumbColor: true,
+              labelTypes: const [],
+            ),
+            const SizedBox(height: 16),
+
+            TextField(
+              controller: _hexController,
+              decoration: const InputDecoration(
+                labelText: 'Hex (#RRGGBB)',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: _onHexChanged,
+            ),
+
+            const SizedBox(height: 12),
+
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _rController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'R'),
+                    onChanged: (_) => _onRGBChanged(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _gController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'G'),
+                    onChanged: (_) => _onRGBChanged(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _bController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'B'),
+                    onChanged: (_) => _onRGBChanged(),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        // TODO: add color picker
-      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            context.read<ThemeState>().updateThemeSeedColor(pickerColor);
+            Navigator.pop(context);
+          },
+          child: const Text('Apply'),
+        ),
+      ],
     );
   }
 }
@@ -290,8 +400,18 @@ class AnalysisPage extends StatefulWidget {
   State<AnalysisPage> createState() => _AnalysisPageState();
 }
 
+// enum AnalysisCardType { streak, recap, wordCloud }
+enum AnalysisCardType { streak, recap}
+
 class _AnalysisPageState extends State<AnalysisPage> {
   List<Entry> _entries = [];
+  bool _isEditing = false;
+
+  List<AnalysisCardType> _cardOrder = [
+    AnalysisCardType.streak,
+    AnalysisCardType.recap,
+    // AnalysisCardType.wordCloud,
+  ];
 
   @override
   void initState() {
@@ -306,16 +426,19 @@ class _AnalysisPageState extends State<AnalysisPage> {
     });
   }
 
+  Widget _buildCard(AnalysisCardType type) {
+    switch (type) {
+      case AnalysisCardType.streak:
+        return StreakCard(entries: _entries);
+      case AnalysisCardType.recap:
+        return RecapCard(entries: _entries);
+      // case AnalysisCardType.wordCloud:
+      //   return WordCloudCard(entries: _entries);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // The list of cards, which should be user editable.
-    // TODO: Implement Edit page and allow user to add and remove cards, along with changing the order of the cards.
-    var cardList = <Widget>[
-      StreakCard(entries: _entries),
-      RecapCard(entries: _entries),
-      WordCloudCard(entries: _entries),
-    ];
-
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
@@ -327,41 +450,56 @@ class _AnalysisPageState extends State<AnalysisPage> {
                 MaterialPageRoute(builder: (context) => const CalendarView()),
               );
             },
-            icon: Icon(Icons.today),
+            icon: const Icon(Icons.today),
           ),
           IconButton(
-            tooltip: 'Edit Layout',
-            onPressed: () {},
-            icon: Icon(Icons.edit),
+            tooltip: _isEditing ? 'Done Editing' : 'Edit Layout',
+            onPressed: () {
+              setState(() {
+                _isEditing = !_isEditing;
+              });
+            },
+            icon: Icon(_isEditing ? Icons.check : Icons.edit),
           ),
         ],
       ),
-      body: ListView.separated(
+      body: ReorderableListView.builder(
         padding: const EdgeInsets.all(8),
-        itemCount: 1 + cardList.length,
+        itemCount: _cardOrder.length + 1,
+        onReorder: _isEditing
+            ? (oldIndex, newIndex) {
+                if (oldIndex == 0 || newIndex == 0) return;
+                setState(() {
+                  if (newIndex > oldIndex) newIndex--;
+                  final item = _cardOrder.removeAt(oldIndex - 1);
+                  _cardOrder.insert(newIndex - 1, item);
+                });
+              }
+            : (_, __) {},
         itemBuilder: (context, index) {
-          return index == 0
-              ? ListTile(
-                title: Text(
-                  "Vibe Check",
-                  style: GoogleFonts.deliusSwashCaps(
-                    textStyle: Theme.of(
-                      context,
-                    ).textTheme.headlineLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 40,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
+          if (index == 0) {
+            return ListTile(
+              key: const ValueKey("title"),
+              title: Text(
+                "Vibe Check",
+                style: GoogleFonts.deliusSwashCaps(
+                  textStyle: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 40,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                 ),
-                subtitle: Text("Here are your stats!"),
-              )
-              : index == 1
-              ? cardList[0]
-              : cardList[index - 1];
+              ),
+              subtitle: const Text("Here are your stats!"),
+            );
+          }
+
+          final cardType = _cardOrder[index - 1];
+          return Container(
+            key: ValueKey(cardType),
+            child: _buildCard(cardType),
+          );
         },
-        separatorBuilder:
-            (BuildContext context, int index) => const SizedBox(height: 10),
       ),
     );
   }
@@ -599,11 +737,11 @@ class _CalendarViewState extends State<CalendarView> {
       ),
     );
 
-    if (selected != null && selected != _firstDayOfMonth) {
+    if (selected != null) {
       setState(() {
         _firstDayOfMonth = DateTime(selected.year, selected.month, 1);
         _daysInMonth = DateTime(selected.year, selected.month + 1, 0).day;
-        _selectedDate = null;
+        _selectedDate = selected;
       });
       _fetchEntries();
     }
