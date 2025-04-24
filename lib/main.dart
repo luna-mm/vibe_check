@@ -466,6 +466,13 @@ class _AnalysisPageState extends State<AnalysisPage> {
       body: ReorderableListView.builder(
         padding: const EdgeInsets.all(8),
         itemCount: _cardOrder.length + 1,
+        buildDefaultDragHandles: false,
+        proxyDecorator: (child, index, animation) {
+          return Material(
+            elevation: 2,
+            child: child,
+          );
+        },
         onReorder: _isEditing
             ? (oldIndex, newIndex) {
                 if (oldIndex == 0 || newIndex == 0) return;
@@ -495,7 +502,10 @@ class _AnalysisPageState extends State<AnalysisPage> {
           }
 
           final cardType = _cardOrder[index - 1];
-          return Container(
+
+          return ReorderableDragStartListener(
+            enabled: _isEditing,
+            index: index,
             key: ValueKey(cardType),
             child: _buildCard(cardType),
           );
