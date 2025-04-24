@@ -825,66 +825,65 @@ class _CalendarViewState extends State<CalendarView> {
               )).toList(),
             ),
 
-            SizedBox(
-              height: 300,
-              child: GridView.builder(
-                itemCount: _daysInMonth + startWeekday,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 7,
-                  crossAxisSpacing: 4,
-                  mainAxisSpacing: 4,
-                  childAspectRatio: 0.9,
-                ),
-                itemBuilder: (context, index) {
-                  if (index < startWeekday) return const SizedBox();
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _daysInMonth + startWeekday,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+                crossAxisSpacing: 4,
+                mainAxisSpacing: 4,
+                childAspectRatio: 0.9,
+              ),
+              itemBuilder: (context, index) {
+                if (index < startWeekday) return const SizedBox();
 
-                  int day = index - startWeekday + 1;
-                  DateTime date = DateTime(_firstDayOfMonth.year, _firstDayOfMonth.month, day);
-                  bool isSelected = _selectedDate?.year == date.year &&
-                                    _selectedDate?.month == date.month &&
-                                    _selectedDate?.day == date.day;
+                int day = index - startWeekday + 1;
+                DateTime date = DateTime(_firstDayOfMonth.year, _firstDayOfMonth.month, day);
+                bool isSelected = _selectedDate?.year == date.year &&
+                                  _selectedDate?.month == date.month &&
+                                  _selectedDate?.day == date.day;
 
-                  String dateKey = DateFormat('yyyy-MM-dd').format(date);
-                  String emoji = _emojiByDate[dateKey] ?? '🫥';
+                String dateKey = DateFormat('yyyy-MM-dd').format(date);
+                String emoji = _emojiByDate[dateKey] ?? '🫥';
 
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedDate = date;
-                      });
-                      _updateSelectedDateEntries();
-                    },
-                    child: Center(
-                      child: Column(
-                        children: [
-                          Text(emoji, style: const TextStyle(fontSize: 24)),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
-                            decoration: isSelected
-                                ? BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(8),
-                                  )
-                                : null,
-                            child: Text(
-                              day.toString(),
-                              style: GoogleFonts.deliusSwashCaps(
-                                textStyle: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                  color: isSelected
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Theme.of(context).colorScheme.onBackground,
-                                ),
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedDate = date;
+                    });
+                    _updateSelectedDateEntries();
+                  },
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Text(emoji, style: const TextStyle(fontSize: 24)),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
+                          decoration: isSelected
+                              ? BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                )
+                              : null,
+                          child: Text(
+                            day.toString(),
+                            style: GoogleFonts.deliusSwashCaps(
+                              textStyle: TextStyle(
+                                fontSize: 12,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                color: isSelected
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context).colorScheme.onBackground,
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
 
             Expanded(
