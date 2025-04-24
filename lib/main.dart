@@ -33,13 +33,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeSeedColor = context.watch<ThemeState>().themeSeedColor;
+    final themeState = context.watch<ThemeState>();
 
     return MaterialApp(
       title: "Vibe Check",
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: themeSeedColor),
+        colorScheme: ColorScheme.fromSeed(seedColor: themeState.themeSeedColor),
+        textTheme: themeState.currentTextTheme,
       ),
       home: const HomePage(),
     );
@@ -58,13 +59,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   var currentIndex = 1;
 
-
   // Ask the user for permission to send notifications.
   @override
   void initState() {
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +138,7 @@ class _SettingsPageState extends State<SettingsPage> {
       padding: const EdgeInsets.all(16.0),
       child: Text(
         title,
-        style: GoogleFonts.deliusSwashCaps(
+        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
           fontSize: 18,
           fontWeight: FontWeight.bold,
           color: Colors.grey[700],
@@ -153,7 +152,9 @@ class _SettingsPageState extends State<SettingsPage> {
       leading: Icon(icon),
       title: Text(
         title,
-        style: GoogleFonts.deliusSwashCaps(),
+        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+          fontSize: 15,
+        ),
       ),
       trailing: Icon(Icons.arrow_forward_ios, size: 16),
       onTap: onTap,
@@ -166,7 +167,7 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         title: Text(
           "Settings",
-          style: GoogleFonts.deliusSwashCaps(
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
             fontWeight: FontWeight.bold,
             fontSize: 40,
             color: Theme.of(context).colorScheme.primary,
@@ -184,8 +185,12 @@ class _SettingsPageState extends State<SettingsPage> {
           }),
 
           _settingsOpt(Icons.font_download, "Font", onTap: () {
-            // TODO
+            showDialog(
+              context: context,
+              builder: (context) => const FontSelectorDialog(),
+            );
           }),
+
           _settingsOpt(Icons.language, "Language", onTap: () {
             // TODO
           }),
@@ -240,11 +245,32 @@ class _SettingsPageState extends State<SettingsPage> {
 
 class ThemeState extends ChangeNotifier {
   Color _themeSeedColor = Colors.pink;
+  String _fontKey = 'Delius Swash Caps';
+
+  final Map<String, TextTheme Function()> _fontMap = {
+    'Delius Swash Caps': GoogleFonts.deliusSwashCapsTextTheme,
+    'Lato': GoogleFonts.latoTextTheme,
+  };
+
   Color get themeSeedColor => _themeSeedColor;
+  String get fontKey => _fontKey;
+  List<String> get availableFonts => _fontMap.keys.toList();
+  TextTheme get currentTextTheme => _fontMap[_fontKey]!();
 
   void updateThemeSeedColor(Color color) {
     _themeSeedColor = color;
     notifyListeners();
+  }
+
+  void updateFontKey(String key) {
+    if (_fontMap.containsKey(key)) {
+      _fontKey = key;
+      notifyListeners();
+    }
+  }
+
+  TextStyle? previewFont(String key) {
+    return _fontMap[key]?.call().bodyLarge;
   }
 }
 
@@ -309,8 +335,8 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        'Select Theme Color',
-        style: GoogleFonts.deliusSwashCaps(),
+        'Color Scheme',
+        style: Theme.of(context).textTheme.headlineLarge?.copyWith(),
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -339,7 +365,6 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
               ),
               onChanged: _onHexChanged,
             ),
-
             const SizedBox(height: 12),
 
             Row(
@@ -388,6 +413,41 @@ class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
           child: const Text('Apply'),
         ),
       ],
+    );
+  }
+}
+
+class FontSelectorDialog extends StatelessWidget {
+  const FontSelectorDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final themeState = context.read<ThemeState>();
+    final currentFont = themeState.fontKey;
+
+    return AlertDialog(
+      title: Text(
+        'Text Theme',
+        style: Theme.of(context).textTheme.headlineLarge,
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: themeState.availableFonts.map((fontName) {
+            return ListTile(
+              title: Text(
+                fontName,
+                style: themeState.previewFont(fontName),
+              ),
+              trailing: fontName == currentFont ? const Icon(Icons.check) : null,
+              onTap: () {
+                themeState.updateFontKey(fontName);
+                Navigator.pop(context);
+              },
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 }
@@ -489,14 +549,12 @@ class _AnalysisPageState extends State<AnalysisPage> {
               key: const ValueKey("title"),
               title: Text(
                 "Vibe Check",
-                style: GoogleFonts.deliusSwashCaps(
-                  textStyle: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 40,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 40,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-              ),
+                ),
               subtitle: const Text("Here are your stats!"),
             );
           }
@@ -559,24 +617,20 @@ class _CheckInPageState extends State<CheckInPage> {
                 children: <Widget>[
                   Text(
                     "Vibe Check!",
-                    style: GoogleFonts.deliusSwashCaps(
-                      textStyle: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 40,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   SizedBox(height: 16),
                   Text(
-                     "How are you feeling?",
-                     style: GoogleFonts.deliusSwashCaps(
-                       textStyle: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                         fontWeight: FontWeight.bold,
-                         fontSize: 20,
-                         color: Theme.of(context).colorScheme.secondary,
-                       ),
-                     ),
+                    "How are you feeling?",
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
                   ),
                   SizedBox(height: 20),
 
@@ -603,8 +657,8 @@ class _CheckInPageState extends State<CheckInPage> {
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: selectedEmoji == emojis[index]
-                                ? Theme.of(context).colorScheme.surfaceVariant
-                                : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                              ? Theme.of(context).colorScheme.surfaceVariant
+                              : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -789,12 +843,10 @@ class _CalendarViewState extends State<CalendarView> {
       appBar: AppBar(
         title: Text(
           'Calendar',
-          style: GoogleFonts.deliusSwashCaps(
-            textStyle: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         centerTitle: false,
@@ -810,12 +862,10 @@ class _CalendarViewState extends State<CalendarView> {
                 children: [
                   Text(
                     DateFormat.yMMMM().format(_firstDayOfMonth),
-                    style: GoogleFonts.deliusSwashCaps(
-                      textStyle: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   Icon(
@@ -878,14 +928,12 @@ class _CalendarViewState extends State<CalendarView> {
                               : null,
                           child: Text(
                             day.toString(),
-                            style: GoogleFonts.deliusSwashCaps(
-                              textStyle: TextStyle(
-                                fontSize: 12,
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                color: isSelected
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Theme.of(context).colorScheme.onBackground,
-                              ),
+                            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                              fontSize: 12,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.onBackground,
                             ),
                           ),
                         ),
@@ -907,7 +955,7 @@ class _CalendarViewState extends State<CalendarView> {
                       title: Text(entry.sentence, style: GoogleFonts.lato()),
                       subtitle: Text(
                         DateFormat.jm().format(entry.id),
-                        style: GoogleFonts.deliusSwashCaps(fontSize: 12),
+                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 12),
                       ),
                     );
                   },
@@ -916,7 +964,7 @@ class _CalendarViewState extends State<CalendarView> {
                   ? Center(
                     child: Text(
                       "No entries for this day.",
-                      style: GoogleFonts.deliusSwashCaps(color: Colors.grey[600]),
+                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.grey[600]),
                     ),
                   )
                   : const SizedBox.shrink(),
