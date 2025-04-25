@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'calendar_page.dart';
@@ -153,7 +154,9 @@ class AnalysisPage extends StatelessWidget {
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
-  Widget _sectionTitle(String title) {
+  // Wasn't sure how to refactor this properly - if there's a better way to pass
+  // BuildContext to these widgets, implement it pls
+  Widget _sectionTitle(String title, BuildContext context) { 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Text(
@@ -167,7 +170,7 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _settingsOpt(IconData icon, String title, {VoidCallback? onTap}) {
+  Widget _settingsOpt(IconData icon, String title, BuildContext context, {VoidCallback? onTap}) {
     return ListTile(
       leading: Icon(icon),
       title: Text(
@@ -196,35 +199,35 @@ class SettingsPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          _sectionTitle("Customization"),
-          _settingsOpt(Icons.palette, "Theme", onTap: () {
+          _sectionTitle("Customization", context),
+          _settingsOpt(Icons.palette, "Theme", context, onTap: () {
             showDialog(
               context: context,
               builder: (context) => const ThemeSelectorDialog(),
             );
           }),
-          _settingsOpt(Icons.font_download, "Font", onTap: () {
+          _settingsOpt(Icons.font_download, "Font", context, onTap: () {
             showDialog(
               context: context,
               builder: (context) => const FontSelectorDialog(),
             );
           }),
 
-          _settingsOpt(Icons.language, "Language", onTap: () {
+          _settingsOpt(Icons.language, "Language", context, onTap: () {
             // TODO
           }),
-          _settingsOpt(Icons.wb_sunny_outlined, "Display Mode", onTap: () {
+          _settingsOpt(Icons.wb_sunny_outlined, "Display Mode", context, onTap: () {
             // TODO
           }),
-          _settingsOpt(Icons.calendar_today, "Start of the Week", onTap: () {
+          _settingsOpt(Icons.calendar_today, "Start of the Week", context, onTap: () {
             // TODO
           }),
-          _sectionTitle("System"),
-          _settingsOpt(Icons.notifications, "Notifications", onTap: () {
+          _sectionTitle("System", context),
+          _settingsOpt(Icons.notifications, "Notifications", context, onTap: () {
             // TODO
           }),
-          _sectionTitle("Data"),
-          _settingsOpt(Icons.notifications, "Manage My Data", onTap: () {
+          _sectionTitle("Data", context),
+          _settingsOpt(Icons.notifications, "Manage My Data", context, onTap: () {
             // TODO
           }),
           // Debugging button
