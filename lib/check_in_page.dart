@@ -6,6 +6,9 @@ import 'database.dart';
 import 'entry.dart';
 import 'main.dart';
 
+/// This file holds the Check-In page/prompt, its helper functions,
+/// and the current Check in State of the app.
+
 /// State to manage when to send notification
 class CheckInState extends ChangeNotifier {
   var checkInTime = DateTime.now();

@@ -1,3 +1,8 @@
+/// This data type holds an ID, in the form of a DateTime, an emoji, and a sentence.
+/// When a user "checks in", they create an Entry. The database stores all of the user's
+/// Entries, which widgets can interact with by subscribing to Data().
+library;
+
 class Entry {
   final DateTime id; // This is the timestamp of the entry
   final String emoji;

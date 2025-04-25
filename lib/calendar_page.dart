@@ -5,15 +5,17 @@ import 'package:provider/provider.dart';
 import 'database.dart';
 import 'entry.dart';
 
-/// The calendar view where user can see their past entries
-class CalendarView extends StatefulWidget {
-  const CalendarView({super.key});
+/// This file holds the Calendar page, where the user can see their past entries,
+/// along with its helper methods.
+
+class CalendarPage extends StatefulWidget {
+  const CalendarPage({super.key});
 
   @override
-  State<CalendarView> createState() => _CalendarViewState();
+  State<CalendarPage> createState() => _CalendarPageState();
 }
 
-class _CalendarViewState extends State<CalendarView> {
+class _CalendarPageState extends State<CalendarPage> {
   final DateTime _now = DateTime.now();
   final int _firstDayOfWeek = 0;
   late DateTime _firstDayOfMonth;

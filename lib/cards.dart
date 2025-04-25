@@ -5,8 +5,8 @@ import 'package:word_cloud/word_cloud.dart';
 import 'database.dart';
 import 'entry.dart';
 
-// This file contains various "cards", widgets displayed on the Analysis page
-// that display the user's statistics in varying ways.
+/// This file contains various "cards", widgets displayed on the Analysis page
+/// that display the user's statistics in varying ways.
 
 /// Card that displays the user's current and longest streaks
 class StreakCard extends StatelessWidget {
@@ -134,8 +134,8 @@ class WordCloudCard extends StatelessWidget {
   }
 }
 
-/// For development purposes only
-/// Widget that displays all entries in the database
+// For development purposes only
+// Widget that displays all entries in the database
 class AllEntriesWidget extends StatelessWidget {
   const AllEntriesWidget({super.key});
 

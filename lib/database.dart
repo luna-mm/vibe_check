@@ -4,13 +4,14 @@ import 'package:sqflite/sqflite.dart';
 import 'package:word_cloud/word_cloud_data.dart';
 import 'entry.dart';
 
-// This class is used by Widgets who display and access data in the database.
-// This class is a ChangeNotifier, so any time there was a change to the dataset
-// it will update any already built widgets to display the new data.
+/// This class is used by Widgets who display and access data in the database.
+/// This class is a ChangeNotifier, so any time there was a change to the dataset
+/// it will update any already built widgets to display the new data.
 
-// As of 25 of april, Data is now in use!
+/// As of 25 of april, Data is now in use!
 // TODO: Check if widgets are properly working with this new system.
 // TODO: Check for inefficiencies (assigned to Luna)
+
 class Data extends ChangeNotifier {
   final _DatabaseHelper _dbHelper = _DatabaseHelper.instance;
 

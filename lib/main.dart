@@ -7,10 +7,11 @@ import 'cards.dart';
 import 'check_in_page.dart';
 import 'database.dart';
 
-// Vibe Check App - your personal mood tracker
-// by stelubertu 2025!
-// COMP 225 - Software Design and Development
-// Professor Paul Cantrell, Macalester College
+/// Vibe Check App - your personal mood tracker
+/// by stelubertu 2025!
+/// COMP 225 - Software Design and Development
+/// Professor Paul Cantrell, Macalester College
+
 void main() {
   runApp(
     MultiProvider(
@@ -108,7 +109,7 @@ class AnalysisPage extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const CalendarView()),
+                MaterialPageRoute(builder: (context) => const CalendarPage()),
               );
             },
             icon: Icon(Icons.today),
