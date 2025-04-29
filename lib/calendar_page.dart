@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'database.dart';
 import 'entry.dart';
+import 'main.dart';
 
 /// This file holds the Calendar page, where the user can see their past entries,
 /// along with its helper methods.
@@ -17,7 +18,6 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   final DateTime _now = DateTime.now();
-  final int _firstDayOfWeek = 0;
   late DateTime _firstDayOfMonth;
   late int _daysInMonth;
   DateTime? _selectedDate;
@@ -108,11 +108,13 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
-    int startWeekday = (_firstDayOfMonth.weekday - _firstDayOfWeek + 7) % 7;
+    int firstDayOfWeek = context.watch<ThemeState>().startOfWeek;
+    int startWeekday = (_firstDayOfMonth.weekday - firstDayOfWeek + 7) % 7;
+
     List<String> weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     List<String> adjustedWeekdayNames = [
-      ...weekdayNames.sublist(_firstDayOfWeek),
-      ...weekdayNames.sublist(0, _firstDayOfWeek),
+      ...weekdayNames.sublist(firstDayOfWeek),
+      ...weekdayNames.sublist(0, firstDayOfWeek),
     ];
 
     return Scaffold(

@@ -250,25 +250,24 @@ class SettingsPage extends StatelessWidget {
               builder: (context) => const FontSelectorDialog(),
             );
           }),
-
-          _settingsOpt(Icons.language, "Language", context, onTap: () {
-            // TODO
-          }),
           _settingsOpt(Icons.wb_sunny_outlined, "Display Mode", context, onTap: () {
-            // TODO
+            // TODO: Implement Display Mode, including System, Dark, Light mode
           }),
           _settingsOpt(Icons.calendar_today, "Start of the Week", context, onTap: () {
-            // TODO
+            showDialog(
+              context: context,
+              builder: (context) => const StartOfWeekDialog(),
+            );
           }),
           _sectionTitle("System", context),
           _settingsOpt(Icons.notifications, "Notifications", context, onTap: () {
-            // TODO
+            // TODO: Implement customizable notification system
           }),
           _sectionTitle("Data", context),
           _settingsOpt(Icons.notifications, "Manage My Data", context, onTap: () {
-            // TODO
+            // TODO: Implement user's data management
           }),
-          // Debugging button
+          // Debugging button.
           ElevatedButton(
             onPressed: () {
               // TODO: Implement proper notification system
@@ -302,6 +301,7 @@ class SettingsPage extends StatelessWidget {
 class ThemeState extends ChangeNotifier {
   Color _themeSeedColor = Colors.pink;
   String _fontKey = 'Delius Swash Caps';
+  int _startOfWeek = 0;
 
   final Map<String, TextTheme Function()> _fontMap = {
     'Delius Swash Caps': GoogleFonts.deliusSwashCapsTextTheme,
@@ -327,6 +327,13 @@ class ThemeState extends ChangeNotifier {
 
   TextStyle? previewFont(String key) {
     return _fontMap[key]?.call().bodyLarge;
+  }
+
+  int get startOfWeek => _startOfWeek;
+
+  void updateStartOfWeek(int dayIndex) {
+    _startOfWeek = dayIndex;
+    notifyListeners();
   }
 }
 
@@ -503,6 +510,38 @@ class FontSelectorDialog extends StatelessWidget {
             );
           }).toList(),
         ),
+      ),
+    );
+  }
+}
+
+class StartOfWeekDialog extends StatelessWidget {
+  const StartOfWeekDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final themeState = context.read<ThemeState>();
+    final current = themeState.startOfWeek;
+
+    final days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    return AlertDialog(
+      title: Text("Start of the Week", style: Theme.of(context).textTheme.headlineLarge),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(7, (index) {
+          return RadioListTile<int>(
+            value: index,
+            groupValue: current,
+            title: Text(days[index]),
+            onChanged: (value) {
+              if (value != null) {
+                themeState.updateStartOfWeek(value);
+                Navigator.pop(context);
+              }
+            },
+          );
+        }),
       ),
     );
   }
