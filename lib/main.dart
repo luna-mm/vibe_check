@@ -88,19 +88,26 @@ class _HomePageState extends State<HomePage> {
 }
 
 /// This widget displays "cards" that display the user's data in neat ways.
-class AnalysisPage extends StatelessWidget {
+class AnalysisPage extends StatefulWidget {
   const AnalysisPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // The list of cards, which should be user editable.
-    // TODO: Implement Edit page and allow user to add and remove cards, along with changing the order of the cards.
-    var cardList = <Widget>[
-      StreakCard(),
-      RecapCard(),
-      WordCloudCard(),
-    ];
+  State<AnalysisPage> createState() => _AnalysisPageState();
+}
 
+class _AnalysisPageState extends State<AnalysisPage> {
+  // TODO: Allow user to add and remove cards
+  bool _editMode = false;
+
+  // The list of cards
+  List<Widget> cardList = [
+    StreakCard(),
+    RecapCard(),
+    WordCloudCard(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
@@ -115,24 +122,23 @@ class AnalysisPage extends StatelessWidget {
             icon: Icon(Icons.today),
           ),
           IconButton(
-            tooltip: 'Edit Layout',
-            onPressed: () {},
-            icon: Icon(Icons.edit),
-          )
+            tooltip: _editMode ? 'Exit Edit Mode' : 'Edit Layout',
+            onPressed: () {
+              setState(() {
+                _editMode = !_editMode;
+              });
+            },
+            icon: Icon(_editMode ? Icons.check : Icons.edit),
+          ),
         ],
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(8),
-        itemCount: 1 + cardList.length,
-        itemBuilder: (context, index) {
-          return (index == 0)
-          ? ListTile(
+      body: Column(
+        children: [
+          ListTile(
             title: Text(
               "Vibe Check",
               style: GoogleFonts.deliusSwashCaps(
-                textStyle: Theme.of(
-                  context,
-                ).textTheme.headlineLarge?.copyWith(
+                textStyle: Theme.of(context).textTheme.headlineLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   fontSize: 40,
                   color: Theme.of(context).colorScheme.primary,
@@ -140,13 +146,44 @@ class AnalysisPage extends StatelessWidget {
               ),
             ),
             subtitle: Text("Here are your stats!"),
-          )
-          : (index == 1)
-          ? cardList[0]
-          : cardList[index - 1];
-        },
-        separatorBuilder: (BuildContext context, int index) => const SizedBox(height: 10)
-      )
+          ),
+          Expanded(
+            child: _editMode
+              ? ReorderableListView(
+                  padding: const EdgeInsets.all(8),
+                  onReorder: (int oldIndex, int newIndex) {
+                    setState(() {
+                      if (newIndex > oldIndex) newIndex -= 1;
+                      final item = cardList.removeAt(oldIndex);
+                      cardList.insert(newIndex, item);
+                    });
+                  },
+                  buildDefaultDragHandles: true,
+                  children: List.generate(cardList.length, (index) {
+                    return Container(
+                      key: ValueKey(index),
+                      child: Column(
+                        children: [
+                          cardList[index],
+                        ],
+                      ),
+                    );
+                  }),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(8),
+                  itemCount: cardList.length,
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: [
+                        cardList[index],
+                      ],
+                    );
+                  },
+                ),
+          ),
+        ],
+      ),
     );
   }
 }
