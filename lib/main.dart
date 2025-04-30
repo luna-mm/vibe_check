@@ -96,7 +96,6 @@ class AnalysisPage extends StatefulWidget {
 }
 
 class _AnalysisPageState extends State<AnalysisPage> {
-  // TODO: Allow user to add and remove cards
   bool _editMode = false;
 
   // The list of cards
@@ -105,6 +104,53 @@ class _AnalysisPageState extends State<AnalysisPage> {
     RecapCard(),
     WordCloudCard(),
   ];
+
+  // The list of deleted cards
+  List<Widget> deletedCards = [];
+
+    String _getCardTitle(Widget card) {
+    if (card is StreakCard) {
+      return "Current Streak";
+    } else if (card is RecapCard) {
+      return "Recap - Last 5 days";
+    } else if (card is WordCloudCard) {
+      return "Wordcloud - Last 5 Days";
+    } else {
+      return "Unknown Card"; 
+    }
+  }
+
+  void _showRestoreDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Select a card to restore"),
+          content: SizedBox(
+            height: 200,
+            width: double.maxFinite,
+            child: ListView.builder(
+              itemCount: deletedCards.length,
+              itemBuilder: (context, index) {
+                final cardTitle = _getCardTitle(deletedCards[index]);
+                return ListTile(
+                  title: Text(cardTitle),
+                  onTap: () {
+                    setState(() {
+                      cardList.add(deletedCards[index]);
+                      deletedCards.removeAt(index);
+                    });
+
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,39 +195,68 @@ class _AnalysisPageState extends State<AnalysisPage> {
           ),
           Expanded(
             child: _editMode
-              ? ReorderableListView(
-                  padding: const EdgeInsets.all(8),
-                  onReorder: (int oldIndex, int newIndex) {
-                    setState(() {
-                      if (newIndex > oldIndex) newIndex -= 1;
-                      final item = cardList.removeAt(oldIndex);
-                      cardList.insert(newIndex, item);
-                    });
-                  },
-                  buildDefaultDragHandles: true,
-                  children: List.generate(cardList.length, (index) {
-                    return Container(
-                      key: ValueKey(index),
-                      child: Column(
+                ? ReorderableListView(
+                    padding: const EdgeInsets.all(8),
+                    onReorder: (int oldIndex, int newIndex) {
+                      setState(() {
+                        if (newIndex > oldIndex) newIndex -= 1;
+                        final item = cardList.removeAt(oldIndex);
+                        cardList.insert(newIndex, item);
+                      });
+                    },
+                    children: List.generate(cardList.length, (index) {
+                      final cardTitle = _getCardTitle(cardList[index]);
+
+                      return Dismissible(
+                        key: ValueKey(cardList[index]),
+                        direction: DismissDirection.endToStart,
+                        onDismissed: (direction) {
+                          setState(() {
+                            deletedCards.add(cardList[index]);
+                            cardList.removeAt(index);
+                          });
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('$cardTitle deleted'),
+                              duration: Duration(seconds: 1),
+                            ),
+                          );
+                        },
+                        background: Container(
+                          color: const Color.fromARGB(238, 179, 31, 31),
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Icon(Icons.delete, color: Colors.white),
+                        ),
+                        child: Column(
+                          children: [
+                            cardList[index],
+                          ],
+                        ),
+                      );
+                    }),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(8),
+                    itemCount: cardList.length,
+                    itemBuilder: (context, index) {
+                      return Column(
                         children: [
                           cardList[index],
                         ],
-                      ),
-                    );
-                  }),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: cardList.length,
-                  itemBuilder: (context, index) {
-                    return Column(
-                      children: [
-                        cardList[index],
-                      ],
-                    );
-                  },
-                ),
+                      );
+                    },
+                  ),
           ),
+          if (_editMode && deletedCards.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: _showRestoreDialog,
+                child: Text("Restore Deleted Cards"),
+              ),
+            ),
         ],
       ),
     );
