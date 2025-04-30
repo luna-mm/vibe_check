@@ -325,9 +325,6 @@ class SettingsPage extends StatelessWidget {
               builder: (context) => const FontSelectorDialog(),
             );
           }),
-          _settingsOpt(Icons.wb_sunny_outlined, "Display Mode", context, onTap: () {
-            // TODO: Implement Display Mode, including System, Dark, Light mode
-          }),
           _settingsOpt(Icons.calendar_today, "Start of the Week", context, onTap: () {
             showDialog(
               context: context,
