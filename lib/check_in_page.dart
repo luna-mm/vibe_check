@@ -122,28 +122,32 @@ class _CheckInPageState extends State<CheckInPage> {
                       if (selectedEmoji == null && textController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Please select an emoji and describe your mood!'),
+                            content: Text('Please select an emoji or describe your mood!'),
                             duration: Duration(seconds: 2),
                           ),
                         );
                       } else {
                         Entry newEntry = Entry(
                           id: DateTime.now(),
-                          emoji: selectedEmoji!,
+                          emoji: selectedEmoji ?? '',
                           sentence: textController.text,
                         );
                         context.read<Data>().addEntry(newEntry);
+
                         resetCheckIn();
+
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => HomePage()),
                         );
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Checked in!'),
                             duration: Duration(seconds: 2),
                           ),
                         );
+
                         Confetti.launch(
                           context,
                           options: const ConfettiOptions(
