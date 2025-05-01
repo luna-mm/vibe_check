@@ -106,6 +106,24 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
+  void _goToPreviousMonth() {
+    setState(() {
+      _firstDayOfMonth = DateTime(_firstDayOfMonth.year, _firstDayOfMonth.month - 1, 1);
+      _daysInMonth = DateTime(_firstDayOfMonth.year, _firstDayOfMonth.month + 1, 0).day;
+      _selectedDate = _firstDayOfMonth;
+    });
+    _fetchEntries();
+  }
+
+  void _goToNextMonth() {
+    setState(() {
+      _firstDayOfMonth = DateTime(_firstDayOfMonth.year, _firstDayOfMonth.month + 1, 1);
+      _daysInMonth = DateTime(_firstDayOfMonth.year, _firstDayOfMonth.month + 1, 0).day;
+      _selectedDate = _firstDayOfMonth;
+    });
+    _fetchEntries();
+  }
+
   @override
   Widget build(BuildContext context) {
     int firstDayOfWeek = context.watch<ThemeState>().startOfWeek;
@@ -136,20 +154,43 @@ class _CalendarPageState extends State<CalendarPage> {
             GestureDetector(
               onTap: _selectMonthYear,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    DateFormat.yMMMM().format(_firstDayOfMonth),
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
+                  IconButton(
+                    onPressed: _goToPreviousMonth,
+                    icon: Icon(
+                      Icons.arrow_left,
+                      size: 24,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                  Icon(
-                    Icons.arrow_drop_down,
-                    size: 24,
-                    color: Theme.of(context).colorScheme.primary,
+                  Row(
+                    children: [
+                      Text(
+                        DateFormat.yMMMM().format(_firstDayOfMonth),
+                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: _selectMonthYear,
+                        icon: Icon(
+                          Icons.arrow_drop_down,
+                          size: 24,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    onPressed: _goToNextMonth,
+                    icon: Icon(
+                      Icons.arrow_right,
+                      size: 24,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
                 ],
               ),
