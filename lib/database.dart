@@ -46,7 +46,7 @@ class Data with ChangeNotifier {
     int result = await _dbHelper.insertEntry(entry); 
     if (result != 0) {
       _entries.add(entry); // Local copy
-      await _updateAndNotify(); // If adding the entry to database fails, nothing is notified.
+      _updateAndNotify(); // If adding the entry to database fails, nothing is notified.
     }
     return result;
   }
@@ -58,7 +58,7 @@ class Data with ChangeNotifier {
     int result = await _dbHelper.deleteEntry(entry.id); 
     if (result != 0) {
       _entries.remove(entry); 
-      await _updateAndNotify();
+      _updateAndNotify();
     }
     return result;
   }
@@ -71,7 +71,7 @@ class Data with ChangeNotifier {
     int result = await _dbHelper.updateEntry(entry); 
     if (result != 0) {
       _entries[toModify] = entry;
-      await _updateAndNotify();
+      _updateAndNotify();
     }
     return result;
   }
@@ -88,39 +88,18 @@ class Data with ChangeNotifier {
   Future<int> _updateStreak() async {
     if (_entries.isEmpty) return 0;
 
-    int streak = 1;
-    DateTime now = DateTime.now();
-    DateTime lastEntryDate = _entries.last.id;
-
-    now = DateTime(now.year, now.month, now.day);
-    lastEntryDate = DateTime(
-      lastEntryDate.year,
-      lastEntryDate.month,
-      lastEntryDate.day,
-    );
-
-    int difference = now.difference(lastEntryDate).inDays;
-
-    if (difference > 1) {
-      return 0;
-    }
-
-    for (int i = _entries.length - 1; i > 0; i--) {
-      DateTime current = DateTime(
-        _entries[i].id.year,
-        _entries[i].id.month,
-        _entries[i].id.day,
-      );
-      DateTime previous = DateTime(
-        _entries[i - 1].id.year,
-        _entries[i - 1].id.month,
-        _entries[i - 1].id.day,
-      );
-
-      if (current.difference(previous).inDays == 1) {
+    DateTime currentDay = DateTime.now();
+    int streak = 0;
+    
+    // Streak breaks today if no entries have been made yet.
+    if (getEntries(day: currentDay).isEmpty) return streak;
+  
+    bool sentinel = true;
+    while (sentinel) {
+      if (getEntries(day: currentDay.subtract(Duration(days: streak))).isNotEmpty) {
         streak++;
       } else {
-        break;
+        sentinel = false;
       }
     }
 
@@ -128,41 +107,35 @@ class Data with ChangeNotifier {
   }
   
   Future<WordCloudData?> _updateWcData() async {
-      DateTime now = DateTime.now();
-      if (_entries.isEmpty) return null;
-      List<String> sentences =
-        getEntries(day: now).map((entry) => entry.sentence).toList() +
-        getEntries(
-          day: now.subtract(const Duration(days: 1)),
-        ).map((entry) => entry.sentence).toList() +
-        getEntries(
-          day: now.subtract(const Duration(days: 2)),
-        ).map((entry) => entry.sentence).toList() +
-        getEntries(
-          day: now.subtract(const Duration(days: 3)),
-        ).map((entry) => entry.sentence).toList() +
-        getEntries(
-          day: now.subtract(const Duration(days: 4)),
-        ).map((entry) => entry.sentence).toList();
+    if (_entries.isEmpty) return null;
+    
+    Iterable<Entry> entries = getEntries();
+    List<String> sentences = [];
+    for (Entry e in entries) {
+      if (e.sentence.isNotEmpty) sentences.add(e.sentence);
+    }
 
-      List<String> words = [];
-      for (String s in sentences) {
-        final re = RegExp("(?!')[^a-zA-Z]+");
-        words.addAll(s.toLowerCase().split(re).where((s) => s.isNotEmpty).toList());
-      }
+    if (sentences.isEmpty) return null;
 
-      Map<String, int> wordMap = {};
-      for (var x in words) {
-        wordMap[x] = !wordMap.containsKey(x) ? (1) : (wordMap[x]! + 1);
-      }
+    List<String> words = [];
+    for (String s in sentences) {
+      final re = RegExp("(?!')[^a-zA-Z]+");
+      words.addAll(s.toLowerCase().split(re).where((s) => s.isNotEmpty).toList());
+    }
 
-      List<Map> dataMap = [];
-      wordMap.forEach((key, value) {
-        dataMap.add({'word': key, 'value': value});
-      });
+    Map<String, int> wordMap = {};
+    for (var x in words) {
+      wordMap[x] = !wordMap.containsKey(x) ? (1) : (wordMap[x]! + 1);
+    }
 
-      wcData = WordCloudData(data: dataMap);
-      return wcData;
+    List<Map> dataMap = [];
+    wordMap.forEach((key, value) {
+      dataMap.add({'word': key, 'value': value});
+    });
+
+    if (dataMap.length < 5) return null;
+    
+    return WordCloudData(data: dataMap);
   }
 
   // For development purposes only.

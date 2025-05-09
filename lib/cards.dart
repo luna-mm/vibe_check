@@ -70,6 +70,7 @@ class _RecapColumn extends StatelessWidget {
   final List<String> emojis;
   @override
   Widget build(BuildContext context) {
+    if (emojis.length > 3) emojis.removeRange(3, emojis.length);
     return Card.filled(
       clipBehavior: Clip.antiAliasWithSaveLayer,
       child: Column(
@@ -104,18 +105,18 @@ class WordCloudCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final data = context.watch<Data>();
+    final WordCloudData? data = context.watch<Data>().wcData;
     return Card(
       child: Column(
         children: <Widget>[
           ListTile(
             title: Text("Wordcloud - Last 5 Days"),
-            subtitle: (data.wcData == null)
-            ? Text("No data :(")
+            subtitle: (data == null)
+            ? Text("Not enough data :(")
             : FittedBox(
               fit: BoxFit.fitWidth,
               child: WordCloudView(
-                data: data.wcData!,
+                data: data,
                 mapwidth: 200,
                 mapheight: 110,
                 mintextsize: 10,
