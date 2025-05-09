@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vibe_check/preferences.dart';
+import 'package:vibe_check/settings_page.dart';
 import 'calendar_page.dart';
 import 'cards.dart';
 import 'check_in_page.dart';
@@ -12,13 +13,13 @@ import 'database.dart';
 /// COMP 225 - Software Design and Development
 /// Professor Paul Cantrell, Macalester College
 
-void main() {
+void main() async {
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => Data()),
-        ChangeNotifierProvider(create: (_) => CheckInState()),
-        ChangeNotifierProvider(create: (_) => ThemeState())
+        ChangeNotifierProvider(create: (_) => Preferences()),
+        ChangeNotifierProvider(create: (_) => CheckInState())
       ],
       child: const VibeCheckApp(),
     ),
@@ -30,16 +31,26 @@ class VibeCheckApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeState = context.watch<ThemeState>();
-
+    ColorScheme colorScheme = ColorScheme.fromSeed(seedColor: context.watch<Preferences>().accentColor);
+    TextTheme textTheme = context.watch<Preferences>().textTheme;
     return MaterialApp(
       title: "Vibe Check",
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: themeState.themeSeedColor),
-        textTheme: themeState.currentTextTheme,
+        colorScheme: colorScheme,
+        textTheme: textTheme.copyWith(
+          headlineLarge: GoogleFonts.deliusSwashCaps().copyWith(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.primary,
+            fontSize: 40
+          ),
+          headlineMedium: GoogleFonts.deliusSwashCaps().copyWith(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.primary
+          )
+        )
       ),
-      home: const HomePage(),
+      home: const HomePage()
     );
   }
 }
@@ -53,7 +64,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var currentIndex = 0;
+  var selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -61,25 +72,21 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
           setState(() {
-            currentIndex = index;
+            selectedIndex = index;
           });
         },
-        indicatorColor: Theme.of(context).colorScheme.primary,
-        selectedIndex: currentIndex,
+        selectedIndex: selectedIndex,
         destinations: const <Widget>[
           NavigationDestination(icon: Icon(Icons.home), label: "Home"),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_today),
-            label: "Check In",
-          ),
+          NavigationDestination(icon: Icon(Icons.calendar_month), label: "Calendar"),
           NavigationDestination(icon: Icon(Icons.settings), label: "Settings"),
-        ],
+        ]
       ),
       body: IndexedStack(
-        index: currentIndex,
+        index: selectedIndex,
         children: const <Widget>[
           AnalysisPage(),
-          CheckInPage(),
+          CalendarPage(),
           SettingsPage(),
         ],
       ),
@@ -98,7 +105,7 @@ class AnalysisPage extends StatefulWidget {
 class _AnalysisPageState extends State<AnalysisPage> {
   bool _editMode = false;
 
-  // The list of cards
+  // The list of cards.
   List<Widget> cardList = [
     StreakCard(),
     RecapCard(),
@@ -108,7 +115,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
   // The list of deleted cards
   List<Widget> deletedCards = [];
 
-    String _getCardTitle(Widget card) {
+  String _getCardTitle(Widget card) {
     if (card is StreakCard) {
       return "Current Streak";
     } else if (card is RecapCard) {
@@ -158,16 +165,6 @@ class _AnalysisPageState extends State<AnalysisPage> {
       appBar: AppBar(
         actions: <Widget>[
           IconButton(
-            tooltip: 'Show Calendar',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const CalendarPage()),
-              );
-            },
-            icon: Icon(Icons.today),
-          ),
-          IconButton(
             tooltip: _editMode ? 'Exit Edit Mode' : 'Edit Layout',
             onPressed: () {
               setState(() {
@@ -178,18 +175,19 @@ class _AnalysisPageState extends State<AnalysisPage> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckInPage()));
+        },
+        icon: Icon(Icons.add),
+        label: Text("Check In")
+      ),
       body: Column(
         children: [
           ListTile(
             title: Text(
               "Vibe Check",
-              style: GoogleFonts.deliusSwashCaps(
-                textStyle: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 40,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
+              style: TextTheme.of(context).headlineLarge
             ),
             subtitle: Text("Here are your stats!"),
           ),
@@ -258,362 +256,6 @@ class _AnalysisPageState extends State<AnalysisPage> {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-/// A settings widget where user can customize UI, notifications and manage data
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
-
-  // Wasn't sure how to refactor this properly - if there's a better way to pass
-  // BuildContext to these widgets, implement it pls
-  Widget _sectionTitle(String title, BuildContext context) { 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.grey[700],
-        ),
-      ),
-    );
-  }
-
-  Widget _settingsOpt(IconData icon, String title, BuildContext context, {VoidCallback? onTap}) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(
-        title,
-        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-          fontSize: 15,
-        ),
-      ),
-      trailing: Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: onTap,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Settings",
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: 40,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-      ),
-      body: ListView(
-        children: [
-          _sectionTitle("Customization", context),
-          _settingsOpt(Icons.palette, "Theme", context, onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) => const ThemeSelectorDialog(),
-            );
-          }),
-          _settingsOpt(Icons.font_download, "Font", context, onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) => const FontSelectorDialog(),
-            );
-          }),
-          _settingsOpt(Icons.calendar_today, "Start of the Week", context, onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) => const StartOfWeekDialog(),
-            );
-          }),
-          _sectionTitle("System", context),
-          _settingsOpt(Icons.notifications, "Notifications", context, onTap: () {
-            // TODO: Implement customizable notification system
-          }),
-          _sectionTitle("Data", context),
-          _settingsOpt(Icons.notifications, "Manage My Data", context, onTap: () {
-            // TODO: Implement user's data management
-          }),
-          // Debugging button.
-          ElevatedButton(
-            onPressed: () {
-              // TODO: Implement proper notification system
-            },
-            child: Text("Trigger Notification"),
-          ),
-          SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {
-              context.read<Data>().addSampleEntries();
-            },
-            child: Text("Initialize Sample Entries"),
-          ),
-          SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => AllEntriesWidget(),
-                ),
-              );
-            },
-            child: Text("View All Entries")
-          )
-        ]
-      )
-    );
-  }
-}
-
-class ThemeState extends ChangeNotifier {
-  Color _themeSeedColor = Colors.pink;
-  String _fontKey = 'Delius Swash Caps';
-  int _startOfWeek = 0;
-
-  final Map<String, TextTheme Function()> _fontMap = {
-    'Delius Swash Caps': GoogleFonts.deliusSwashCapsTextTheme,
-    'Lato': GoogleFonts.latoTextTheme,
-  };
-
-  Color get themeSeedColor => _themeSeedColor;
-  String get fontKey => _fontKey;
-  List<String> get availableFonts => _fontMap.keys.toList();
-  TextTheme get currentTextTheme => _fontMap[_fontKey]!();
-
-  void updateThemeSeedColor(Color color) {
-    _themeSeedColor = color;
-    notifyListeners();
-  }
-
-  void updateFontKey(String key) {
-    if (_fontMap.containsKey(key)) {
-      _fontKey = key;
-      notifyListeners();
-    }
-  }
-
-  TextStyle? previewFont(String key) {
-    return _fontMap[key]?.call().bodyLarge;
-  }
-
-  int get startOfWeek => _startOfWeek;
-
-  void updateStartOfWeek(int dayIndex) {
-    _startOfWeek = dayIndex;
-    notifyListeners();
-  }
-}
-
-class ThemeSelectorDialog extends StatefulWidget {
-  const ThemeSelectorDialog({super.key});
-
-  @override
-  State<ThemeSelectorDialog> createState() => _ThemeSelectorDialogState();
-}
-
-class _ThemeSelectorDialogState extends State<ThemeSelectorDialog> {
-  late Color pickerColor;
-  final _hexController = TextEditingController();
-  final _rController = TextEditingController();
-  final _gController = TextEditingController();
-  final _bController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    pickerColor = context.read<ThemeState>().themeSeedColor;
-    _updateTextControllers(pickerColor);
-  }
-
-  void _updateTextControllers(Color color) {
-    final hex = color.value.toRadixString(16).padLeft(8, '0').toUpperCase();
-    _hexController.text = '#${hex.substring(2)}';
-    _rController.text = color.red.toString();
-    _gController.text = color.green.toString();
-    _bController.text = color.blue.toString();
-  }
-
-  void _onHexChanged(String value) {
-    final hex = value.replaceAll('#', '');
-    if (hex.length == 6) {
-      try {
-        final color = Color(int.parse('FF$hex', radix: 16));
-        setState(() {
-          pickerColor = color;
-          _updateTextControllers(color);
-        });
-      } catch (_) {}
-    }
-  }
-
-  void _onRGBChanged() {
-    try {
-      final r = int.parse(_rController.text);
-      final g = int.parse(_gController.text);
-      final b = int.parse(_bController.text);
-      if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) {
-        final color = Color.fromARGB(255, r, g, b);
-        setState(() {
-          pickerColor = color;
-          _updateTextControllers(color);
-        });
-      }
-    } catch (_) {}
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(
-        'Color Scheme',
-        style: Theme.of(context).textTheme.headlineLarge?.copyWith(),
-      ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ColorPicker(
-              pickerColor: pickerColor,
-              onColorChanged: (color) {
-                setState(() {
-                  pickerColor = color;
-                  _updateTextControllers(color);
-                });
-              },
-              enableAlpha: false,
-              pickerAreaHeightPercent: 0.7,
-              displayThumbColor: true,
-              labelTypes: const [],
-            ),
-            const SizedBox(height: 16),
-
-            TextField(
-              controller: _hexController,
-              decoration: const InputDecoration(
-                labelText: 'Hex (#RRGGBB)',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: _onHexChanged,
-            ),
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _rController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'R'),
-                    onChanged: (_) => _onRGBChanged(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _gController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'G'),
-                    onChanged: (_) => _onRGBChanged(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _bController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'B'),
-                    onChanged: (_) => _onRGBChanged(),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: () {
-            context.read<ThemeState>().updateThemeSeedColor(pickerColor);
-            Navigator.pop(context);
-          },
-          child: const Text('Apply'),
-        ),
-      ],
-    );
-  }
-}
-
-class FontSelectorDialog extends StatelessWidget {
-  const FontSelectorDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final themeState = context.read<ThemeState>();
-    final currentFont = themeState.fontKey;
-
-    return AlertDialog(
-      title: Text(
-        'Text Theme',
-        style: Theme.of(context).textTheme.headlineLarge,
-      ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: themeState.availableFonts.map((fontName) {
-            return ListTile(
-              title: Text(
-                fontName,
-                style: themeState.previewFont(fontName),
-              ),
-              trailing: fontName == currentFont ? const Icon(Icons.check) : null,
-              onTap: () {
-                themeState.updateFontKey(fontName);
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-}
-
-class StartOfWeekDialog extends StatelessWidget {
-  const StartOfWeekDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final themeState = context.read<ThemeState>();
-    final current = themeState.startOfWeek;
-
-    final days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-    return AlertDialog(
-      title: Text("Start of the Week", style: Theme.of(context).textTheme.headlineLarge),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(7, (index) {
-          return RadioListTile<int>(
-            value: index,
-            groupValue: current,
-            title: Text(days[index]),
-            onChanged: (value) {
-              if (value != null) {
-                themeState.updateStartOfWeek(value);
-                Navigator.pop(context);
-              }
-            },
-          );
-        }),
       ),
     );
   }

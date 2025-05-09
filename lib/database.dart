@@ -8,36 +8,25 @@ import 'entry.dart';
 /// This class is a ChangeNotifier, so any time there was a change to the dataset
 /// it will update any already built widgets to display the new data.
 
-/// As of 25 of april, Data is now in use!
-// TODO: Check if widgets are properly working with this new system.
-// TODO: Check for inefficiencies (assigned to Luna)
-
-class Data extends ChangeNotifier {
+class Data with ChangeNotifier {
   final _DatabaseHelper _dbHelper = _DatabaseHelper.instance;
 
-  /// Variables holding the current states of the database,
-  /// to prevent excessive read and writes to the SQL db.
+  /// Variables holding the current states of the database, to prevent
+  /// excessive read and writes to the SQL db.
   List<Entry> _entries = [];
   int streak = 0;
   WordCloudData? wcData;
 
   Data() {
-    _initializeData();
+    _loadDatabase();
   }
 
-  // Asks the database helper for all data this class holds, and updates them.
-  // This is meant to be run once.
-  Future<void> _initializeData() async {
+  // Background task that runs when this ChangeNotifier is built.
+  Future<void> _loadDatabase() async {
     final entryMap = await _DatabaseHelper.instance.queryAllEntries();
     _entries = entryMap.map((entryMap) => Entry.fromMap(entryMap)).toList();
-    await _updateStreak();
-    await _updateWcData();
-    notifyListeners();
+    _updateAndNotify();
   }
-
-  /// The following commands do not change anything in the database,
-  /// so no widgets will be notified.
-
   
   // Returns an immutable, iterable copy of the current entries in the database.
   // If a DateTime is specified, it will return all entries for the given day.
@@ -56,7 +45,7 @@ class Data extends ChangeNotifier {
   Future<int> addEntry(Entry entry) async {
     int result = await _dbHelper.insertEntry(entry); 
     if (result != 0) {
-      _entries.add(entry);
+      _entries.add(entry); // Local copy
       await _updateAndNotify(); // If adding the entry to database fails, nothing is notified.
     }
     return result;
@@ -68,8 +57,8 @@ class Data extends ChangeNotifier {
 
     int result = await _dbHelper.deleteEntry(entry.id); 
     if (result != 0) {
-      _entries.remove(entry); // Local copy
-      await _updateAndNotify(); // If adding the entry to database fails, nothing is notified.
+      _entries.remove(entry); 
+      await _updateAndNotify();
     }
     return result;
   }
@@ -82,7 +71,7 @@ class Data extends ChangeNotifier {
     int result = await _dbHelper.updateEntry(entry); 
     if (result != 0) {
       _entries[toModify] = entry;
-      await _updateAndNotify(); // If adding the entry to database fails, nothing is notified.
+      await _updateAndNotify();
     }
     return result;
   }
@@ -172,14 +161,8 @@ class Data extends ChangeNotifier {
         dataMap.add({'word': key, 'value': value});
       });
 
-      WordCloudData data = WordCloudData(data: dataMap);
-      // Widget cloud = WordCloudView(
-      //   data: data,
-      //   mapwidth: 2000,
-      //   mapheight: 1200,
-      // );
-
-      return data;
+      wcData = WordCloudData(data: dataMap);
+      return wcData;
   }
 
   // For development purposes only.

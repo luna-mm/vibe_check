@@ -14,15 +14,15 @@ class StreakCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int streak = context.watch<Data>().streak;
+    final data = context.watch<Data>();
     return Card(
       child: Column(
         children: <Widget>[
           ListTile(
             title: Text("Current Streak"),
-            subtitle: (streak == 1)
-            ? Text("$streak day")
-            : Text("$streak days")
+            subtitle: (data.streak == 1)
+            ? Text("${data.streak} day")
+            : Text("${data.streak} days")
           ),
         ],
       ),
@@ -36,13 +36,14 @@ class RecapCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final data = context.watch<Data>();
     final now = DateTime.now();
 
     // Generate list for the last x days
     final int x = 5;
     final days = List.generate(x, (i) {
-      final date = now.subtract(Duration(days: x - 1 - i));
-      final emojis = context.watch<Data>().getEntries(day: date).map((entry) => entry.emoji).toList();
+      DateTime date = now.subtract(Duration(days: x - 1 - i));
+      List<String> emojis = data.getEntries(day: date).map((entry) => entry.emoji).toList();
       return _RecapColumn(
         date: date,
         emojis: (emojis.isEmpty) ? ["🫥"] : emojis,
@@ -63,11 +64,10 @@ class RecapCard extends StatelessWidget {
 
 // Helper widget for the Recap card.
 class _RecapColumn extends StatelessWidget {
-  final DateTime date;
-  final List<String> emojis;
-
   const _RecapColumn({required this.date, required this.emojis});
 
+  final DateTime date;
+  final List<String> emojis;
   @override
   Widget build(BuildContext context) {
     return Card.filled(
@@ -82,15 +82,15 @@ class _RecapColumn extends StatelessWidget {
             child: Text(DateFormat('EEE').format(date)),
           ),
           Container(
+            width: double.infinity,
             padding: EdgeInsets.all(10),
-            height: Theme.of(context).textTheme.headlineLarge!.fontSize! * 4 + 10,
-            alignment: Alignment.topLeft,
-            child: Text(
-              emojis.join("\n"),
-              style: Theme.of(context).textTheme.headlineLarge,
-              maxLines: 3,
-              overflow: TextOverflow.clip,
-            ),
+            height: Theme.of(context).textTheme.headlineLarge!.fontSize! * 3.5,
+            alignment: Alignment.center,
+            child: Column(
+              children: <Widget>[
+                for (int i = 0; i < emojis.length; i++) Expanded(child: FittedBox(fit: BoxFit.contain, child: Text(emojis[i])))
+              ]
+            )
           ),
         ],
       ),
@@ -104,18 +104,18 @@ class WordCloudCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    WordCloudData? data = context.watch<Data>().wcData;
+    final data = context.watch<Data>();
     return Card(
       child: Column(
         children: <Widget>[
           ListTile(
             title: Text("Wordcloud - Last 5 Days"),
-            subtitle: (data == null)
-            ? CircularProgressIndicator()
+            subtitle: (data.wcData == null)
+            ? Text("No data :(")
             : FittedBox(
               fit: BoxFit.fitWidth,
               child: WordCloudView(
-                data: data,
+                data: data.wcData!,
                 mapwidth: 200,
                 mapheight: 110,
                 mintextsize: 10,

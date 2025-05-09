@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:vibe_check/preferences.dart';
 import 'database.dart';
 import 'entry.dart';
-import 'main.dart';
 
 /// This file holds the Calendar page, where the user can see their past entries,
 /// along with its helper methods.
@@ -17,7 +17,9 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  final DateTime _now = DateTime.now();
+  late Data data;
+  
+  late DateTime _now;
   late DateTime _firstDayOfMonth;
   late int _daysInMonth;
   DateTime? _selectedDate;
@@ -29,16 +31,17 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   void initState() {
     super.initState();
+    _now = DateTime.now();
     _firstDayOfMonth = DateTime(_now.year, _now.month, 1);
     _daysInMonth = DateTime(_now.year, _now.month + 1, 0).day;
     _selectedDate = _now;
-    _fetchEntries();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _allEntries = context.watch<Data>().getEntries().toList();
+    data = context.watch<Data>();
+    _allEntries = data.getEntries().toList();
     _fetchEntries();
   }
 
@@ -126,7 +129,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
-    int firstDayOfWeek = context.watch<ThemeState>().startOfWeek;
+    int firstDayOfWeek = context.watch<Preferences>().startOfWeek;
     int startWeekday = (_firstDayOfMonth.weekday - firstDayOfWeek + 7) % 7;
 
     List<String> weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -137,15 +140,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Calendar',
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        centerTitle: false,
+        title: Text(style: Theme.of(context).textTheme.headlineMedium, 'Calendar'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -274,7 +269,6 @@ class _CalendarPageState extends State<CalendarPage> {
                       title: Text(entry.sentence, style: GoogleFonts.lato()),
                       subtitle: Text(
                         DateFormat.jm().format(entry.id),
-                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 12),
                       ),
                     );
                   },
@@ -283,7 +277,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   ? Center(
                     child: Text(
                       "No entries for this day.",
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: Colors.grey[600]),
+                      style: TextTheme.of(context).bodyLarge?.copyWith(color: Colors.grey[600])
                     ),
                   )
                   : const SizedBox.shrink(),
