@@ -15,22 +15,22 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+
     final AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
     tz.initializeTimeZones();
 
-    final DarwinInitializationSettings initializationSettingsIOS =
-        DarwinInitializationSettings(
-      requestSoundPermission: false,
-      requestBadgePermission: false,
-      requestAlertPermission: false
+    final DarwinInitializationSettings initializationSettingsIOS = DarwinInitializationSettings(
+      requestSoundPermission: true,
+      requestBadgePermission: true,
+      requestAlertPermission: true
     );
 
-    final InitializationSettings initializationSettings =InitializationSettings(
+    final InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid, 
       iOS: initializationSettingsIOS, 
-      macOS: null
     );
 
     await flutterLocalNotificationsPlugin.initialize(
@@ -40,8 +40,8 @@ class NotificationService {
 
   Future<void> pushTestNotification() async {
     final AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
-      "testChannelID", 
-      "Test Channel 1",
+      "testChannel", 
+      "Notification Tests",
       importance: Importance.max
     );
 
@@ -70,10 +70,10 @@ class NotificationService {
       tz.TZDateTime.now(tz.local).add(const Duration(seconds: 8)),
       const NotificationDetails(
         android: AndroidNotificationDetails(
-          'your channel id',
-          'your channel name',
-          channelDescription: 'your channel description'
-          ),
+          'testChannel',
+          'Notification Tests',
+          importance: Importance.max
+        )
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle
     );

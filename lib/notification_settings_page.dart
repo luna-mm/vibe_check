@@ -26,7 +26,15 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             leading: Icon(Icons.timelapse),
             title: Text("Schedule notification in 8 seconds"),
             subtitle: Text("For testing purposes!"),
-            onTap: () => NotificationService().testScheduleNotification()
+            onTap: () { 
+              NotificationService().testScheduleNotification();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Scheduled! Here it comes...'),
+                  duration: Duration(seconds: 2),
+                )
+              );
+            }
           )
         ],
       )

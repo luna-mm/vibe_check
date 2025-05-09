@@ -3,7 +3,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import 'package:vibe_check/cards.dart';
 import 'package:vibe_check/database.dart';
-import 'package:vibe_check/notifications_page.dart';
+import 'package:vibe_check/notification_settings_page.dart';
 import 'package:vibe_check/preferences.dart';
 
 /// A settings widget where user can customize UI, notifications and manage data
