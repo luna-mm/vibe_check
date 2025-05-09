@@ -179,12 +179,15 @@ class _AnalysisPageState extends State<AnalysisPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckInPage()));
-        },
-        icon: Icon(Icons.add),
-        label: Text("Check In")
+      floatingActionButton: Visibility(
+        visible: !_editMode,
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckInPage()));
+          },
+          icon: Icon(Icons.add),
+          label: Text("Check In")
+        ),
       ),
       body: Column(
         children: [
