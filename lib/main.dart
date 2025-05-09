@@ -151,7 +151,6 @@ class _AnalysisPageState extends State<AnalysisPage> {
                       cardList.add(deletedCards[index]);
                       deletedCards.removeAt(index);
                     });
-
                     Navigator.pop(context);
                   },
                 );

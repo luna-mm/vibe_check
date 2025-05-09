@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:vibe_check/notification_service.dart';
+import 'package:vibe_check/preferences.dart';
 
-class NotificationSettingsPage extends StatefulWidget {
+class NotificationSettingsPage extends StatelessWidget {
   const NotificationSettingsPage({super.key});
 
-  @override
-  State<NotificationSettingsPage> createState() => _NotificationSettingsPageState();
-}
-
-class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,6 +14,12 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
       ),
       body: ListView(
         children: [
+          ListTile(
+            leading: Icon(Icons.notifications),
+            title: Text("Enable Notifications"),
+            subtitle: Text("Try to enable notifications. If that doesn't work, configure in your system settings."),
+            onTap: () => context.read<Preferences>().requestNotificationPermission()
+          ),
           ListTile(
             leading: Icon(Icons.developer_mode),
             title: Text("Send a test notification"),

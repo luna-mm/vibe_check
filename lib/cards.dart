@@ -73,28 +73,25 @@ class _RecapColumn extends StatelessWidget {
     if (emojis.length > 3) emojis.removeRange(3, emojis.length);
     return Card.filled(
       clipBehavior: Clip.antiAliasWithSaveLayer,
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            alignment: Alignment.center,
-            padding: EdgeInsets.all(5),
-            color: Theme.of(context).colorScheme.primaryContainer,
-            child: Text(DateFormat('EEE').format(date)),
-          ),
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(10),
-            height: Theme.of(context).textTheme.headlineLarge!.fontSize! * 3.5,
-            alignment: Alignment.center,
-            child: Column(
-              children: <Widget>[
-                for (int i = 0; i < emojis.length; i++) Expanded(child: FittedBox(fit: BoxFit.contain, child: Text(emojis[i])))
-              ]
+      child: SizedBox(
+        height: Theme.of(context).textTheme.headlineLarge!.fontSize! * 5,
+        child: Column(
+          children: <Widget>[
+            Container(
+              padding: const EdgeInsets.all(2.0),
+              color: ColorScheme.of(context).primaryContainer,
+              alignment: Alignment.center,
+              child: Text(DateFormat('EEE').format(date))
+            ),
+            for (int i = 0; i < emojis.length; i++) 
+            Container(
+              padding: const EdgeInsets.all(2.0),
+              alignment: Alignment.center,
+              child: Text(emojis[i], style: TextTheme.of(context).headlineLarge)
             )
-          ),
-        ],
-      ),
+          ]
+        ),
+      )
     );
   }
 }
