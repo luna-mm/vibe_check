@@ -84,6 +84,7 @@ class Preferences with ChangeNotifier{
 
   // Helper function to read and set the system accent color.
   Future<void> _readSystemColors() async {
+    SystemTheme.fallbackColor = Color(0xFFE91E63);
     await SystemTheme.accentColor.load();
     _systemColor = SystemTheme.accentColor.accent;
     notifyListeners();

@@ -75,7 +75,7 @@ class _CalendarPageState extends State<CalendarPage> {
       firstDate: DateTime(_now.year - 5, 1),
       lastDate: DateTime(_now.year + 5, 12),
       builder: (context, child) => Theme(
-        data: _datePickerTheme(context),
+        data: Theme.of(context),
         child: child!,
       ),
     );
@@ -88,25 +88,6 @@ class _CalendarPageState extends State<CalendarPage> {
       });
       _fetchEntries();
     }
-  }
-
-  ThemeData _datePickerTheme(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.light(
-        primary: colorScheme.primary,
-        onPrimary: Colors.white,
-        surface: colorScheme.surface,
-        onSurface: colorScheme.onSurface,
-        secondary: colorScheme.secondary,
-        onSecondary: Colors.white,
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: colorScheme.primary),
-      ), 
-      dialogTheme: DialogThemeData(backgroundColor: Theme.of(context).scaffoldBackgroundColor),
-    );
   }
 
   void _goToPreviousMonth() {
@@ -141,6 +122,7 @@ class _CalendarPageState extends State<CalendarPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(style: Theme.of(context).textTheme.headlineMedium, 'Calendar'),
+        forceMaterialTransparency: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

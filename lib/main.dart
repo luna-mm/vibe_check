@@ -166,6 +166,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        forceMaterialTransparency: true,
         actions: <Widget>[
           IconButton(
             tooltip: _editMode ? 'Exit Edit Mode' : 'Edit Layout',

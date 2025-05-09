@@ -119,10 +119,10 @@ class _CheckInPageState extends State<CheckInPage> {
             SizedBox(height: 5),
             ElevatedButton(
               onPressed: () {
-                if (selectedEmoji == null && textController.text.isEmpty) {
+                if (selectedEmoji == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Please select an emoji or describe your mood!'),
+                      content: Text('Please select an emoji!'),
                       duration: Duration(seconds: 2),
                     ),
                   );
