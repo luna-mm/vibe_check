@@ -3,6 +3,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import 'package:vibe_check/cards.dart';
 import 'package:vibe_check/database.dart';
+import 'package:vibe_check/notifications_page.dart';
 import 'package:vibe_check/preferences.dart';
 
 /// A settings widget where user can customize UI, notifications and manage data
@@ -49,6 +50,7 @@ class SettingsPage extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.notifications),
             title: Text('Manage Notifications'),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => NotificationSettingsPage()))
           ),
           ListTile(
             leading: Icon(Icons.download),

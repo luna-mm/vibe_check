@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vibe_check/notification_service.dart';
 import 'package:vibe_check/preferences.dart';
 import 'package:vibe_check/settings_page.dart';
 import 'calendar_page.dart';
@@ -13,7 +14,10 @@ import 'database.dart';
 /// COMP 225 - Software Design and Development
 /// Professor Paul Cantrell, Macalester College
 
-void main() async {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().init();
+  
   runApp(
     MultiProvider(
       providers: [
