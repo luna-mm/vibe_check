@@ -107,7 +107,7 @@ class WordCloudCard extends StatelessWidget {
       child: Column(
         children: <Widget>[
           ListTile(
-            title: Text("Wordcloud - Last 5 Days"),
+            title: Text("Wordcloud"),
             subtitle: (data == null)
             ? Text("Not enough data :(")
             : FittedBox(

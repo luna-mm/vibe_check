@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -108,16 +109,15 @@ class AnalysisPage extends StatefulWidget {
 
 class _AnalysisPageState extends State<AnalysisPage> {
   bool _editMode = false;
-
   // The list of cards.
-  List<Widget> cardList = [
+  late List<Widget> cardList = [
     StreakCard(),
     RecapCard(),
-    WordCloudCard(),
+    WordCloudCard()
   ];
 
   // The list of deleted cards
-  List<Widget> deletedCards = [];
+  late List<Widget> deletedCards = [];
 
   String _getCardTitle(Widget card) {
     if (card is StreakCard) {
@@ -125,7 +125,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
     } else if (card is RecapCard) {
       return "Recap - Last 5 days";
     } else if (card is WordCloudCard) {
-      return "Wordcloud - Last 5 Days";
+      return "Wordcloud";
     } else {
       return "Unknown Card"; 
     }
@@ -163,17 +163,49 @@ class _AnalysisPageState extends State<AnalysisPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    List<int> order = context.watch<Preferences>().cardOrder;
+    cardList = [];
+    deletedCards = [];
+    if (!order.contains(0)) deletedCards.add(StreakCard());
+    if (!order.contains(1)) deletedCards.add(RecapCard());
+    if (!order.contains(2)) deletedCards.add(WordCloudCard());
+
+    for (int id in order) {
+      if (id == 0) {
+        cardList.add(StreakCard());
+      } else if (id == 1) {
+        cardList.add(RecapCard());
+      } else if (id == 2) {
+        cardList.add(WordCloudCard());
+      }
+    }
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         forceMaterialTransparency: true,
         actions: <Widget>[
+          if (_editMode) IconButton(
+            icon: Text("Editing: Hold to drag, swipe left to delete"),
+            onPressed: () {},
+          ),
           IconButton(
             tooltip: _editMode ? 'Exit Edit Mode' : 'Edit Layout',
             onPressed: () {
               setState(() {
                 _editMode = !_editMode;
               });
+              // Save order to user preferences
+              List<int> cardOrder = [];
+              for (Widget card in cardList) {
+                if (card is StreakCard) cardOrder.add(0);
+                if (card is RecapCard) cardOrder.add(1);
+                if (card is WordCloudCard) cardOrder.add(2);
+              }
+              context.read<Preferences>().setCardOrder(cardOrder);
             },
             icon: Icon(_editMode ? Icons.check : Icons.edit),
           ),
@@ -201,6 +233,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
           Expanded(
             child: _editMode
                 ? ReorderableListView(
+                    buildDefaultDragHandles: false,
                     padding: const EdgeInsets.all(8),
                     onReorder: (int oldIndex, int newIndex) {
                       setState(() {
@@ -210,8 +243,6 @@ class _AnalysisPageState extends State<AnalysisPage> {
                       });
                     },
                     children: List.generate(cardList.length, (index) {
-                      final cardTitle = _getCardTitle(cardList[index]);
-
                       return Dismissible(
                         key: ValueKey(cardList[index]),
                         direction: DismissDirection.endToStart,
@@ -220,13 +251,6 @@ class _AnalysisPageState extends State<AnalysisPage> {
                             deletedCards.add(cardList[index]);
                             cardList.removeAt(index);
                           });
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('$cardTitle deleted'),
-                              duration: Duration(seconds: 1),
-                            ),
-                          );
                         },
                         background: Container(
                           color: const Color.fromARGB(238, 179, 31, 31),
@@ -234,10 +258,15 @@ class _AnalysisPageState extends State<AnalysisPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Icon(Icons.delete, color: Colors.white),
                         ),
-                        child: Column(
+                        child: Row(
                           children: [
-                            cardList[index],
-                          ],
+                            Expanded(child: cardList[index]),
+                            ReorderableDelayedDragStartListener(index: index, child: Container(
+                                padding: EdgeInsets.all(10.0),
+                                child: Icon(Icons.drag_handle),
+                              )
+                            )
+                          ]
                         ),
                       );
                     }),

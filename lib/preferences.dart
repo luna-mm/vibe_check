@@ -22,6 +22,7 @@ class Preferences with ChangeNotifier{
   String _font = 'Lato';
   int _startOfWeek = 0;
   bool _notificationsEnabled = false;
+  String _cardOrder = "012";
 
   // Accent color provided by the system (Material You)
   Color _systemColor = Color(0xFFE91E63);
@@ -33,6 +34,7 @@ class Preferences with ChangeNotifier{
   TextTheme get textTheme => fonts[_font]!;
   int get startOfWeek => _startOfWeek;
   bool get notificationsEnabled => _notificationsEnabled;
+  List<int> get cardOrder => _cardOrder.split("").map(int.parse).toList();
   
   Future<void> setAccentColor (Color color) async {
     _accentColor = color;
@@ -54,6 +56,16 @@ class Preferences with ChangeNotifier{
 
   Future<void> setStartOfWeek(int index) async {
     _startOfWeek = index;
+    notifyListeners();
+    _storePreferences();
+  }
+
+  Future<void> setCardOrder(List<int> order) async {
+    var buffer = StringBuffer();
+    for (int index in order) {
+      buffer.write(index);
+    }
+    _cardOrder = buffer.toString();
     notifyListeners();
     _storePreferences();
   }
@@ -111,6 +123,9 @@ class Preferences with ChangeNotifier{
 
     var storedStartOfWeek = prefs.getInt('startOfWeek');
     if (storedStartOfWeek != null) setStartOfWeek(storedStartOfWeek);
+
+    var storedCardOrder = prefs.getString('cardOrder');
+    if (storedCardOrder != null) _cardOrder = storedCardOrder;
     notifyListeners();
   }
 
@@ -121,5 +136,6 @@ class Preferences with ChangeNotifier{
     await prefs.setBool('usingSystemColor', usingSystemColor);
     await prefs.setString('font', _font);
     await prefs.setInt('startOfWeek', _startOfWeek);
+    await prefs.setString('cardOrder', _cardOrder);
   }
 }
