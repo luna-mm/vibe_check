@@ -148,44 +148,54 @@ class Data with ChangeNotifier {
     return WordCloudData(data: dataMap);
   }
 
-  // For development purposes only.
   // Adds 7 sample entries to the database.
+  // Use for demoing the app :)!
   void addSampleEntries() {
     List<Entry> sampleEntries = [
       Entry(
         id: DateTime.now().subtract(Duration(days: 1)),
+        emoji: '🫠',
+        sentence: 'Finals. finals. blegh',
+      ),
+      Entry(
+        id: DateTime.now().subtract(Duration(days: 1, hours: 6, minutes: 14)),
         emoji: '😊',
-        sentence: 'Finally got the database working!',
+        sentence: 'The weather is nice outside today :)',
       ),
       Entry(
         id: DateTime.now().subtract(Duration(days: 2)),
         emoji: '😔',
-        sentence: 'The database isn\'t working! This sucks :(',
+        sentence: 'I ran out of flex points today </3',
       ),
       Entry(
-        id: DateTime.now().subtract(Duration(days: 3)),
-        emoji: '🫠',
-        sentence: 'Cafe Mac was so bad today.',
+        id: DateTime.now().subtract(Duration(days: 4, hours: 3, minutes: 23)),
+        emoji: '😡',
+        sentence: 'My computer decided to break down on me for no reason.',
       ),
       Entry(
+        id: DateTime.now().subtract(Duration(days: 4, minutes: 11)),
+        emoji: '😊',
+        sentence: 'My computer fixed itself somehow yay',
+      ),
+        Entry(
         id: DateTime.now().subtract(Duration(days: 4)),
-        emoji: '😒',
-        sentence: 'smh',
+        emoji: '🫠',
+        sentence: 'Ok its back to glitching out again.',
       ),
       Entry(
         id: DateTime.now().subtract(Duration(days: 5)),
-        emoji: '😡',
-        sentence: 'My computer decided to break down for no reason ugh',
+        emoji: '🫢',
+        sentence: 'Exam grades came out today.... um,',
       ),
       Entry(
         id: DateTime.now().subtract(Duration(days: 6)),
-        emoji: '🫢',
-        sentence: 'Oops I think I totally got overheard lol',
+        emoji: '🫠',
+        sentence: 'Didn\'t get much sleep last night but I\'m alive',
       ),
       Entry(
         id: DateTime.now().subtract(Duration(days: 7)),
         emoji: '😊',
-        sentence: 'First entry wooh hooooo yayayayyy',
+        sentence: 'Trying out this new app :)',
       ),
     ];
     for (Entry e in sampleEntries) {

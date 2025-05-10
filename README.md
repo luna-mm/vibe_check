@@ -1,7 +1,7 @@
 
 <h1 align="center">
   <br>
- <img src="vibecheckvenndiagramicon_rainbowtranslarge__720.png" alt="Markdownify" width="300"></a>
+ <img src="assets/images/vibechecklogo.png" alt="Vibe Check Logo" width="300"></a>
   <br>
   Vibe Check
   <br>
@@ -11,53 +11,36 @@
 
 <p align="center">
   <a href="#key-features">Key Features</a> •
-  <a href="#how-to-use">How To Use</a> •
+  <a href="#how-to-use">How To Use</a>
 </p>
 
-![screenshot](https://raw.githubusercontent.com/amitmerchant1990/electron-markdownify/master/app/img/markdownify.gif)
+<h1 align="center">
+ <img src="assets/images/banner.png" alt="Vibe Check Banner" width="800"></a>
+</h1>
 
 ## Key Features
 
-* Scheduled notifications
-  - Flexibility in selecting the frequency and timing of pings 
+* "Vibe Check!" Scheduled Reminders
+  - Choose to be notified to check in daily at your own customizable times.
 * Simple mood reflections
-  - One emoji and a brief sentence!
+  - One emoji and a brief sentence! That's all Vibe Check needs to show you your vibes.
 * Graphical representations of your mood over time:
-  - WordCloud
-  - Bar plots highlighting different frequencies  
-* Ability to customize app-theme to any color desired
-* Choose what _you_ want to see!
-  - Delete and/or rearrange the placement of graphics cards
-* Cross-platform
-  - Android and iOS ready.
+  - WordCloud - see what words have been the most used in your vibes.
+* Customization focused - Choose what *you* want to see!
+  - Delete and/or rearrange the placement of cards
+  - Use Material You or another color for theming
+  - and more...
+* Works on Android and iOS!
 
-## How To Use
+## How to Use
 
-To clone and run this application, you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer. From your command line:
+This application uses the Flutter SDK. 
+The quickest way to get set up is to clone this repository, and use `fvm` to set up the appropriate flutter version for you.
 
-```bash
-# Clone this repository
-$ git clone https://github.com/amitmerchant1990/electron-markdownify
+## About this app
 
-# Go into the repository
-$ cd electron-markdownify
+Made with ♡ by [stelubretu](https://github.com/luna-mm/vibe_check/graphs/contributors).
 
-# Install dependencies
-$ npm install
+This app was made for a class project! :)
 
-# Run the app
-$ npm start
-```
-
-## Credits
-
-This software uses the following open source packages:
-
-- [Electron](http://electron.atom.io/)
-- [Node.js](https://nodejs.org/)
-- [Marked - a markdown parser](https://github.com/chjj/marked)
-- [showdown](http://showdownjs.github.io/showdown/)
-- [CodeMirror](http://codemirror.net/)
-- Emojis are taken from [here](https://github.com/arvida/emoji-cheat-sheet.com)
-- [highlight.js](https://highlightjs.org/)
-
+**COMP 225 - Macalester College** | Professor Paul Cantrell - Spring 2025

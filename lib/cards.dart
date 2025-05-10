@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:word_cloud/word_cloud.dart';
 import 'database.dart';
-import 'entry.dart';
 
 /// This file contains various "cards", widgets displayed on the Analysis page
 /// that display the user's statistics in varying ways.
@@ -132,25 +131,25 @@ class WordCloudCard extends StatelessWidget {
   }
 }
 
-// For development purposes only
+// For development purposes only  - Testing
 // Widget that displays all entries in the database
-class AllEntriesWidget extends StatelessWidget {
-  const AllEntriesWidget({super.key});
+// class AllEntriesWidget extends StatelessWidget {
+//   const AllEntriesWidget({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    Iterable<Entry> entries = context.watch<Data>().getEntries();
-    return Scaffold(
-      appBar: AppBar(title: const Text("All Entries")),
-      body: ListView.builder(
-        itemCount: entries.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text('Entry ${index + 1}'),
-            subtitle: Text(entries.elementAt(index).toString()),
-          );
-        },
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     Iterable<Entry> entries = context.watch<Data>().getEntries();
+//     return Scaffold(
+//       appBar: AppBar(title: const Text("All Entries")),
+//       body: ListView.builder(
+//         itemCount: entries.length,
+//         itemBuilder: (context, index) {
+//           return ListTile(
+//             title: Text('Entry ${index + 1}'),
+//             subtitle: Text(entries.elementAt(index).toString()),
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }

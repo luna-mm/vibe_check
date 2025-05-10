@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
-import 'package:vibe_check/cards.dart';
+// import 'package:vibe_check/cards.dart';
 import 'package:vibe_check/database.dart';
 import 'package:vibe_check/notification_settings_page.dart';
 import 'package:vibe_check/preferences.dart';
@@ -53,31 +53,25 @@ class SettingsPage extends StatelessWidget {
             onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => NotificationSettingsPage()))
           ),
           ListTile(
-            leading: Icon(Icons.download),
-            title: Text('Backup my Data'),
-          ),
-          ListTile(
-            leading: Icon(Icons.upload),
-            title: Text('Upload a Data Backup'),
-          ),
-          ListTile(
-            leading: Icon(Icons.timeline),
-            title: Text('Initialize Sample Entries'),
+            leading: Icon(Icons.co_present),
+            title: Text('Create sample data'),
+            subtitle: Text('For use when demoing the app.'),
             onTap: () {
               context.read<Data>().addSampleEntries();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Added sample entries!'),
+                  content: Text('Added some sample entries!'),
                   duration: Duration(seconds: 2),
                 )
               );
             }
           ),
-          ListTile(
-            leading: Icon(Icons.developer_mode),
-            title: Text('View Entries'),
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => AllEntriesWidget()))
-          )
+          // ListTile(
+          //   leading: Icon(Icons.developer_mode),
+          //   title: Text('View Entries'),
+          //   subtitle: Text('For developers :3 See all items in database.'),
+          //   onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => AllEntriesWidget()))
+          // )
         ]
       )
     );
