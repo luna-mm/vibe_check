@@ -5,16 +5,13 @@ import 'package:provider/provider.dart';
 import 'database.dart';
 import 'entry.dart';
 
-/// This file holds the Check-In page/prompt, its helper functions,
-/// and the current Check in State of the app.
-
-/// State to manage when to send notification
+/// State to manage when a check in is pending or performed
 class CheckInState extends ChangeNotifier {
   var checkInTime = DateTime.now();
   var checkInPending = false;
 }
 
-/// The check in page where user can check in their mood.
+/// Check in page is where user can select an emoji and write a description representing their mood.
 class CheckInPage extends StatefulWidget {
   const CheckInPage({super.key});
 
@@ -26,8 +23,9 @@ class CheckInPage extends StatefulWidget {
 class _CheckInPageState extends State<CheckInPage> {
   String? selectedEmoji;
   TextEditingController textController = TextEditingController();
-  final List<String> emojis = ['😊', '😔', '🫠', '😒', '😡', '🫢'];
+  final List<String> emojis = ['😊', '😔', '🫠', '😒', '😡', '🫢']; // List of available emojis to choose from
 
+  // Resets the check-in by clearing the selected emoji and text input.
   void resetCheckIn() {
     setState(() {
       selectedEmoji = null;
@@ -39,7 +37,7 @@ class _CheckInPageState extends State<CheckInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: true, // Prevent UI overflow when keyboard appears
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(8),
         child: Column(
@@ -67,6 +65,8 @@ class _CheckInPageState extends State<CheckInPage> {
                 ),
             ),
             SizedBox(height: 20),
+
+            // Grid of emojis to select from
             GridView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
@@ -78,6 +78,7 @@ class _CheckInPageState extends State<CheckInPage> {
               itemCount: emojis.length,
               padding: const EdgeInsets.all(8.0),
               itemBuilder: (context, index) {
+                // Toggle selected emoji when tapped
                 return GestureDetector(
                   onTap: () {
                     setState(() {
@@ -90,6 +91,7 @@ class _CheckInPageState extends State<CheckInPage> {
                   },
                   child: Container(
                     alignment: Alignment.center,
+                    // Highlight selected emoji
                     decoration: BoxDecoration(
                       color: selectedEmoji == emojis[index]
                           ? Theme.of(context).colorScheme.surfaceContainerHighest
@@ -105,6 +107,8 @@ class _CheckInPageState extends State<CheckInPage> {
               },
             ),
             SizedBox(height: 5),
+
+            // Text field to describe mood
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
@@ -117,12 +121,15 @@ class _CheckInPageState extends State<CheckInPage> {
               ),
             ),
             SizedBox(height: 5),
+
+            // Check in button to submit the input
             ElevatedButton(
               onPressed: () {
-                if (selectedEmoji == null) {
+                // If no input, show a warning. Otherwise, save the input.
+                if (selectedEmoji == null && textController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Please select an emoji!'),
+                      content: Text('Please select an emoji or enter thoughts!'),
                       duration: Duration(seconds: 2),
                     ),
                   );
@@ -137,14 +144,14 @@ class _CheckInPageState extends State<CheckInPage> {
                   resetCheckIn();
             
                   Navigator.of(context).pop();
-            
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Checked in!'),
                       duration: Duration(seconds: 2),
                     ),
                   );
-            
+
                   Confetti.launch(
                     context,
                     options: const ConfettiOptions(
