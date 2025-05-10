@@ -6,8 +6,8 @@ import 'package:vibe_check/preferences.dart';
 import 'database.dart';
 import 'entry.dart';
 
-/// This file holds the Calendar page, where the user can see their past entries,
-/// along with its helper methods.
+/// Calendar page displays a monthly calendar view
+/// Users can tap a date to view the entries for that day
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -25,7 +25,7 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime? _selectedDate;
 
   List<Entry> _allEntries = [];
-  Map<String, String> _emojiByDate = {};
+  Map<String, String> _emojiByDate = {}; // Map of date strings to last emoji of that date
   List<Entry> _selectedDateEntries = [];
 
   @override
@@ -45,6 +45,7 @@ class _CalendarPageState extends State<CalendarPage> {
     _fetchEntries();
   }
 
+  // Gathers last emoji by date and update selected date's entries
   Future<void> _fetchEntries() async {
     final Map<String, Entry> lastByDate = {};
     for (var entry in _allEntries) {
@@ -57,6 +58,7 @@ class _CalendarPageState extends State<CalendarPage> {
     _updateSelectedDateEntries();
   }
 
+  // Update the list of entries for the currently selected date
   void _updateSelectedDateEntries() {
     if (_selectedDate == null) return;
 
@@ -68,6 +70,7 @@ class _CalendarPageState extends State<CalendarPage> {
     });
   }
 
+  // Open date picker to select a month / year
   Future<void> _selectMonthYear() async {
     final DateTime? selected = await showDatePicker(
       context: context,
@@ -90,6 +93,7 @@ class _CalendarPageState extends State<CalendarPage> {
     }
   }
 
+  // Navigate to the previous month
   void _goToPreviousMonth() {
     setState(() {
       _firstDayOfMonth = DateTime(_firstDayOfMonth.year, _firstDayOfMonth.month - 1, 1);
@@ -99,6 +103,7 @@ class _CalendarPageState extends State<CalendarPage> {
     _fetchEntries();
   }
 
+  // Navigate to the next month
   void _goToNextMonth() {
     setState(() {
       _firstDayOfMonth = DateTime(_firstDayOfMonth.year, _firstDayOfMonth.month + 1, 1);
@@ -110,7 +115,10 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Get user preference for first day of the week
     int firstDayOfWeek = context.watch<Preferences>().startOfWeek;
+
+    // Calculate how many days to skip before first day of month
     int startWeekday = (_firstDayOfMonth.weekday - firstDayOfWeek + 7) % 7;
 
     List<String> weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -128,6 +136,7 @@ class _CalendarPageState extends State<CalendarPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
+            // Month / year picker
             GestureDetector(
               onTap: _selectMonthYear,
               child: Row(
@@ -173,6 +182,7 @@ class _CalendarPageState extends State<CalendarPage> {
               ),
             ),
 
+            // Row of weekday names
             Row(
               children: adjustedWeekdayNames.map((day) => Expanded(
                 child: Center(
@@ -181,6 +191,7 @@ class _CalendarPageState extends State<CalendarPage> {
               )).toList(),
             ),
 
+            // Calendar grid
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -192,6 +203,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   childAspectRatio: 0.9,
                 ),
                 itemBuilder: (context, index) {
+                  // Empty cells offset
                   if (index < startWeekday) return const SizedBox();
             
                   int day = index - startWeekday + 1;
