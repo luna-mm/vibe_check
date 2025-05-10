@@ -6,7 +6,7 @@ import 'package:vibe_check/database.dart';
 import 'package:vibe_check/notification_settings_page.dart';
 import 'package:vibe_check/preferences.dart';
 
-/// A settings widget where user can customize UI, notifications and manage data
+/// Settings page is where user can customize UI, notifications and manage data
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -84,13 +84,18 @@ class SettingsPage extends StatelessWidget {
   }
 }
 
+/// Function to show the color picker dialog for selecting accent color
 void colorPickerDialog(BuildContext context) {
+  // Get user preference for color
   Color pickedColor = context.read<Preferences>().accentColor;
+
+  // Controllers for the color input fields
   var hexController = TextEditingController();
   var rController = TextEditingController();
   var gController = TextEditingController();
   var bController = TextEditingController();
 
+  // Update text fields based on selected color
   void updateTextControllers(Color color) {
     final hex = color.toHexString();
     hexController.text = '#${hex.substring(2)}';
@@ -99,6 +104,7 @@ void colorPickerDialog(BuildContext context) {
     bController.text = '${(color.b * 255).toInt()}';
   }
 
+  // Update color on hex change
   void onHexChanged(String value) {
     final hex = value.replaceAll('#', '');
     if (hex.length == 6) {
@@ -110,6 +116,7 @@ void colorPickerDialog(BuildContext context) {
     }
   }
 
+  // Update color on rgb change
   void onRGBChanged() {
     try {
       final r = int.parse(rController.text);
@@ -123,7 +130,10 @@ void colorPickerDialog(BuildContext context) {
     } catch (_) {}
   }
 
+  // Initialize the text fields with current color values
   updateTextControllers(pickedColor);
+
+  // Show the color picker dialog
   showDialog<void> (
     context: context,
     builder: (BuildContext context) {
@@ -133,6 +143,7 @@ void colorPickerDialog(BuildContext context) {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Color picker widget for selecting a color
               ColorPicker(
                 pickerColor: pickedColor,
                 onColorChanged: (color) {
@@ -146,6 +157,7 @@ void colorPickerDialog(BuildContext context) {
               ),
               const SizedBox(height: 16),
     
+              // Hex input field
               TextField(
                 controller: hexController,
                 decoration: const InputDecoration(
@@ -156,6 +168,7 @@ void colorPickerDialog(BuildContext context) {
               ),
               const SizedBox(height: 12),
     
+              // RGB input field
               Row(
                 children: [
                   Expanded(
@@ -190,6 +203,7 @@ void colorPickerDialog(BuildContext context) {
           ),
         ),
         actions: [
+          // Button to reset color to default pink
           TextButton(
             onPressed: () {
               context.read<Preferences>().setAccentColor(Colors.pink);
@@ -197,10 +211,12 @@ void colorPickerDialog(BuildContext context) {
             },
             child: const Text('Reset')
           ),
+          // Button to close dialog without changes
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
+          // Button to apply the selected color
           TextButton(
             onPressed: () {
               context.read<Preferences>().setAccentColor(pickedColor);
@@ -214,6 +230,7 @@ void colorPickerDialog(BuildContext context) {
   );
 }
 
+/// Function to show the font selector dialog
 void fontSelectorDialog(BuildContext context) {
   showDialog<void>(
     context: context,
@@ -244,6 +261,7 @@ void fontSelectorDialog(BuildContext context) {
   );
 }
 
+/// Function to show the startWeek selector dialog
 void startOfWeekDialog(BuildContext context) {
   final current = context.read<Preferences>().startOfWeek;
   final days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
