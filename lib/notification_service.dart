@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -37,7 +38,8 @@ class NotificationService {
   }
 
   Future<void> requestNotificationPermission() async {
-    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.
+    requestNotificationsPermission();
   }
   
   Future<void> pushTestNotification() async {
@@ -58,8 +60,8 @@ class NotificationService {
 
     await FlutterLocalNotificationsPlugin().show(
       0,
-      "Test Notification",
-      "Hopefully you're seeing this! :)",
+      "Hey there!",
+      "Glad to see your notifications are working. :)",
       notificationDetails,
     );
   }
@@ -67,8 +69,8 @@ class NotificationService {
   Future<void> testScheduleNotification() async {
     await flutterLocalNotificationsPlugin.zonedSchedule(
       1,
-      "Future notification",
-      "Test!!",
+      "Vibe Check! (just kidding)",
+      "This is what your daily vibe check reminders will look like.",
       tz.TZDateTime.now(tz.local).add(const Duration(seconds: 8)),
       const NotificationDetails(
         android: AndroidNotificationDetails(
@@ -79,5 +81,68 @@ class NotificationService {
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle
     );
+  }
+
+  Future<bool> scheduleDailyReminder(TimeOfDay time) async {
+    // Convert TimeOfDay to DateTime
+    DateTime now = DateTime.now();
+    DateTime selectedTime = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    if (selectedTime.isBefore(DateTime.now())) {
+      selectedTime = selectedTime.add(const Duration(days: 1));
+    }
+
+    // Convert TimeOfDay to Notification ID
+    int id = (time.hour * 60) + time.minute;
+
+    final tz.TZDateTime scheduledTime = tz.TZDateTime.from(selectedTime, tz.local);
+
+    const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
+      'checkInAlarm',
+      'Check In Reminders',
+      importance: Importance.max
+    );
+
+    final DarwinNotificationDetails darwinNotificationDetails = DarwinNotificationDetails(
+      presentAlert: true
+    );
+
+    try {
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        'Vibe Check!', 
+        'It\'s time to check in. How are you doing?',
+        scheduledTime, 
+        NotificationDetails(
+          android: androidNotificationDetails,
+          iOS: darwinNotificationDetails
+        ),
+        androidScheduleMode: AndroidScheduleMode.alarmClock,
+        matchDateTimeComponents: DateTimeComponents.time
+      );
+      debugPrint('Notification scheduled successfully');
+      return true;
+    } catch (e) {
+      debugPrint('Error scheduling notification: $e');
+      return false;
+    }
+  }
+
+  Future<void> deleteScheduledReminder(TimeOfDay time) async {
+    int id = (time.hour * 60).toInt() + time.minute;
+    await flutterLocalNotificationsPlugin.cancel(id);
+  }
+
+  Future<List<TimeOfDay>> retrieveScheduledNotifications() async {
+    final List<PendingNotificationRequest> pendingNotificationRequests = await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+    if (pendingNotificationRequests.isEmpty) return List.empty();
+
+    List<TimeOfDay> scheduledTimes = [];
+    for (PendingNotificationRequest rq in pendingNotificationRequests) {
+      int hour = (rq.id / 60).floor();
+      int minute = rq.id - (hour * 60);
+      scheduledTimes.add(TimeOfDay(hour: hour, minute: minute));
+    }
+
+    return scheduledTimes;
   }
 }
