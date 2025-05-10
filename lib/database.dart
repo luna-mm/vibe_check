@@ -129,10 +129,20 @@ class Data with ChangeNotifier {
     }
 
     List<Map> dataMap = [];
+    bool allWordsHaveSameValue = true; // Avoids glitch with word_cloud when all words appear at the same 
+    int past = 1;
     wordMap.forEach((key, value) {
+      if (allWordsHaveSameValue) {
+        if (past != value) {
+          allWordsHaveSameValue = false;
+        } else {
+          past = value;
+        }
+      }
       dataMap.add({'word': key, 'value': value});
     });
 
+    if (allWordsHaveSameValue) return null;
     if (dataMap.length < 5) return null;
     
     return WordCloudData(data: dataMap);
